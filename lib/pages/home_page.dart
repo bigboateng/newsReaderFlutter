@@ -8,8 +8,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List jsonArray = [];
-  Map<String, dynamic> newsJson = new Map<String, dynamic>();
+  String newsSourceId = "";
+  List newsSourcesArray = [];
+  List newsStoriesArray = [];
+  Map<String, dynamic> newsSources = new Map<String, dynamic>();
+  Map<String, dynamic> newsStories = new Map<String, dynamic>();
 
   @override
   void initState() {
@@ -18,29 +21,77 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsSources() async {
-    String dataURL = "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
-    http.Response response = await http.get(dataURL);
+    String dataUrl =
+        "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
+
+    http.Response response = await http.get(dataUrl);
     setState(() {
-      newsJson = JSON.decode(response.body);
+      newsSources = JSON.decode(response.body);
     });
   }
 
-  buildList() {
-    if (newsJson.length == 0) {
+  buildListOfNewsSources() {
+    if (newsSources.length == 0) {
       return <Widget>[new CircularProgressIndicator()];
     } else {
-      jsonArray = newsJson['sources'];
-      List myList = <Widget>[];
-      for (var i = 0; i < jsonArray.length; i++) {
-        ListTile newsSource = new ListTile(
-          title: new Text("${jsonArray[i]['name']}"),
-          onTap: () => Navigator.pop(context)
-        );
+      newsSourcesArray = newsSources['sources'];
 
-        myList.add(newsSource);
-      }
+      return new List.generate(newsSourcesArray.length, (int index) {
+        String newsSource = newsSourcesArray[index]['name'];
 
-      return myList;
+        return new ListTile(
+            title: new Text(newsSource),
+            onTap: () {
+              Navigator.pop(context);
+              newsSourceId = newsSourcesArray[index]['id'];
+              newsStoriesArray.clear(); // clear current news stories
+              loadNewsStories();
+            }
+            //onTap: doLog(index)
+            );
+      });
+    }
+  }
+
+  loadNewsStories() async {
+    String dataUrl = "https://newsapi.org/v2/top-headlines?sources=" + newsSourceId + "&apiKey=a30edf50cbbb48049945142f004c36c3";
+    http.Response response = await http.get(dataUrl);
+
+    setState(() {
+      newsStories = JSON.decode(response.body);
+    });
+  }
+
+  buildListOfNewsStories() {
+    if (newsStories.length == 0) {
+      return new Center(child: new Text("<---- Select a news source!"));
+    } else {
+      newsStoriesArray = newsStories['articles'];
+
+      return new Container (
+        child: new ListView(
+          children: new List.generate(newsStoriesArray.length, (int index) {
+            String title = newsStoriesArray[index]['title'] == null ? "" : newsStoriesArray[index]['title'];
+            String newsText = newsStoriesArray[index]['description'] == null ? "" : newsStoriesArray[index]['description'];
+            String url = newsStoriesArray[index]['url'] == null ? "" : newsStoriesArray[index]['url'];
+            String imageUrl = newsStoriesArray[index]['urlToImage'] == null ? "" : newsStoriesArray[index]['urlToImage'];
+            String dateTime = newsStoriesArray[index]['publishedAt'] == null ? "" : newsStoriesArray[index]['publishedAt'];
+
+            return new Card(
+              child: new Column (
+                children: <Widget>[
+                  new Text(title),
+                  new Text(newsText),
+                  new Text(url),
+                  new Text(imageUrl),
+                  new Text(dateTime)
+                ]
+              )
+            );
+          }),
+        ),
+      );
+
     }
   }
 
@@ -50,11 +101,9 @@ class _HomePageState extends State<HomePage> {
         appBar: new AppBar(title: new Text("My News Reader")),
         drawer: new Drawer(
           child: new ListView(
-            children: buildList(),
+            children: buildListOfNewsSources(),
           ),
         ),
-        body: new Center(
-          child: new Text("HomePage"),
-        ));
+        body: buildListOfNewsStories());
   }
 }
