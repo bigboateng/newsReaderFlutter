@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_news_reader_android" default="compile.module.news_reader_android">
+  <dirname property="module.news_reader_android.basedir" file="${ant.file.module_news_reader_android}"/>
+  
+  <property name="module.jdk.home.news_reader_android" value=""/>
+  <property name="module.jdk.bin.news_reader_android" value=""/>
+  <property name="module.jdk.classpath.news_reader_android" value=""/>
+  
+  <property name="compiler.args.news_reader_android" value="-encoding UTF-8 -source 9 -target 9 ${compiler.args}"/>
+  
+  <property name="news_reader_android.output.dir" value="${module.news_reader_android.basedir}/out/production/news_reader_android"/>
+  <property name="news_reader_android.testoutput.dir" value="${module.news_reader_android.basedir}/out/test/news_reader_android"/>
+  
+  <path id="news_reader_android.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="news_reader_android.module.production.classpath">
+    <path refid="library.flutter_for_android.classpath"/>
+  </path>
+  
+  <path id="news_reader_android.runtime.production.module.classpath">
+    <pathelement location="${news_reader_android.output.dir}"/>
+    <path refid="library.flutter_for_android.classpath"/>
+  </path>
+  
+  <path id="news_reader_android.module.classpath">
+    <pathelement location="${news_reader_android.output.dir}"/>
+    <path refid="library.flutter_for_android.classpath"/>
+  </path>
+  
+  <path id="news_reader_android.runtime.module.classpath">
+    <pathelement location="${news_reader_android.testoutput.dir}"/>
+    <pathelement location="${news_reader_android.output.dir}"/>
+    <path refid="library.flutter_for_android.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.news_reader_android">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.news_reader_android">
+    <patternset refid="excluded.from.module.news_reader_android"/>
+  </patternset>
+  
+  <path id="news_reader_android.module.sourcepath">
+    <dirset dir="${module.news_reader_android.basedir}/android">
+      <include name="app/src/main/java"/>
+      <include name="gen"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.news_reader_android" depends="compile.module.news_reader_android.production,compile.module.news_reader_android.tests" description="Compile module news_reader_android"/>
+  
+  <target name="compile.module.news_reader_android.production" depends="register.custom.compilers" description="Compile module news_reader_android; production classes">
+    <mkdir dir="${news_reader_android.output.dir}"/>
+    <javac2 destdir="${news_reader_android.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.news_reader_android}/javac">
+      <compilerarg line="${compiler.args.news_reader_android}"/>
+      <bootclasspath refid="news_reader_android.module.bootclasspath"/>
+      <classpath refid="news_reader_android.module.production.classpath"/>
+      <src refid="news_reader_android.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.news_reader_android"/>
+    </javac2>
+    
+    <copy todir="${news_reader_android.output.dir}">
+      <fileset dir="${module.news_reader_android.basedir}/android/app/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.news_reader_android.basedir}/android/gen">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.news_reader_android.tests" depends="register.custom.compilers,compile.module.news_reader_android.production" description="compile module news_reader_android; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.news_reader_android" description="cleanup module">
+    <delete dir="${news_reader_android.output.dir}"/>
+    <delete dir="${news_reader_android.testoutput.dir}"/>
+  </target>
+</project>

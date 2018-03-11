@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_news_reader" default="compile.module.news_reader">
+  <dirname property="module.news_reader.basedir" file="${ant.file.module_news_reader}"/>
+  
+  <property name="module.jdk.home.news_reader" value=""/>
+  <property name="module.jdk.bin.news_reader" value=""/>
+  <property name="module.jdk.classpath.news_reader" value=""/>
+  
+  <property name="compiler.args.news_reader" value="-encoding UTF-8 -source 9 -target 9 ${compiler.args}"/>
+  
+  <property name="news_reader.output.dir" value="${module.news_reader.basedir}/out/production/news_reader"/>
+  <property name="news_reader.testoutput.dir" value="${module.news_reader.basedir}/out/test/news_reader"/>
+  
+  <path id="news_reader.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="news_reader.module.production.classpath">
+    <path refid="library.dart_sdk.classpath"/>
+    <path refid="library.dart_packages.classpath"/>
+  </path>
+  
+  <path id="news_reader.runtime.production.module.classpath">
+    <pathelement location="${news_reader.output.dir}"/>
+    <path refid="library.dart_sdk.classpath"/>
+    <path refid="library.dart_packages.classpath"/>
+  </path>
+  
+  <path id="news_reader.module.classpath">
+    <pathelement location="${news_reader.output.dir}"/>
+    <path refid="library.dart_sdk.classpath"/>
+    <path refid="library.dart_packages.classpath"/>
+  </path>
+  
+  <path id="news_reader.runtime.module.classpath">
+    <pathelement location="${news_reader.testoutput.dir}"/>
+    <pathelement location="${news_reader.output.dir}"/>
+    <path refid="library.dart_sdk.classpath"/>
+    <path refid="library.dart_packages.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.news_reader">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.news_reader">
+    <patternset refid="excluded.from.module.news_reader"/>
+  </patternset>
+  
+  
+  <target name="compile.module.news_reader" depends="compile.module.news_reader.production,compile.module.news_reader.tests" description="Compile module news_reader"/>
+  
+  <target name="compile.module.news_reader.production" depends="register.custom.compilers" description="Compile module news_reader; production classes"/>
+  
+  <target name="compile.module.news_reader.tests" depends="register.custom.compilers,compile.module.news_reader.production" description="compile module news_reader; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.news_reader" description="cleanup module">
+    <delete dir="${news_reader.output.dir}"/>
+    <delete dir="${news_reader.testoutput.dir}"/>
+  </target>
+</project>
