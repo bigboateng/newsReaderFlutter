@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,6 +9,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String appBarTitle = "News Reader";
   String newsSourceId = "";
   List newsSourcesArray = [];
   List newsStoriesArray = [];
@@ -44,6 +46,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.pop(context);
               newsSourceId = newsSourcesArray[index]['id'];
+              appBarTitle = newsSourcesArray[index]['name'];
               newsStoriesArray.clear(); // clear current news stories
               loadNewsStories();
             }
@@ -80,11 +83,22 @@ class _HomePageState extends State<HomePage> {
             return new Card(
               child: new Column (
                 children: <Widget>[
-                  new Text(title),
+                  new Image.network(imageUrl),
+                  new Text(title,
+                  textAlign: TextAlign.left,
+                  style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
                   new Text(newsText),
-                  new Text(url),
-                  new Text(imageUrl),
-                  new Text(dateTime)
+                  new Text(dateTime),
+                  new ButtonTheme.bar(
+                    child: new ButtonBar(
+                      children: <Widget> [
+                        new FlatButton(
+                          child: new Text("READ MORE"),
+                          onPressed: () => _launchURL(url),
+                        )
+                      ]
+                    )
+                  )
                 ]
               )
             );
@@ -95,10 +109,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  _launchURL(String urlToOpen) async {
+    String url = urlToOpen;
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        appBar: new AppBar(title: new Text("My News Reader")),
+        appBar: new AppBar(title: new Text(appBarTitle)),
         drawer: new Drawer(
           child: new ListView(
             children: buildListOfNewsSources(),
