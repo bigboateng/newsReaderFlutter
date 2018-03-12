@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        primary: true,
+        //primary: true,
         key: _scaffoldKey,
         appBar: new AppBar(title: new Text(appBarTitle)),
         drawer: new Drawer(child: buildListOfNewsSources(context)),
