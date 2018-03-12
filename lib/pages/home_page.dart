@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                   child: new Center(
                       child: new Padding(
                           padding: new EdgeInsets.all(16.0),
-                          child: new Text("Tap anywhere to shows news sources",
+                          child: new Text("Tap anywhere to show news sources",
                               textAlign: TextAlign.center,
                               style: new TextStyle(fontSize: 26.0))))))
         ],
