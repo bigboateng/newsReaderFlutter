@@ -10,6 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String appBarTitle = "News Reader";
   String newsSourceId = "";
   List newsSourcesArray = [];
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  buildListOfNewsSources() {
+  buildListOfNewsSources(BuildContext context) {
     if (newsSourcesArray.length == 0) {
       return new Center(child: new CircularProgressIndicator());
     } else {
@@ -113,9 +114,8 @@ class _HomePageState extends State<HomePage> {
                                 children: <Widget>[
                                   new Expanded(
                                     child: new Text(formattedDate,
-                                    style: new TextStyle(
-                                      fontStyle: FontStyle.italic
-                                    )),
+                                        style: new TextStyle(
+                                            fontStyle: FontStyle.italic)),
                                   ),
                                   new Text("READ MORE",
                                       style: new TextStyle(
@@ -143,8 +143,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+        primary: true,
+        key: _scaffoldKey,
         appBar: new AppBar(title: new Text(appBarTitle)),
-        drawer: new Drawer(child: buildListOfNewsSources()),
+        drawer: new Drawer(child: buildListOfNewsSources(context)),
         body: buildListOfNewsStories());
+    
   }
 }
