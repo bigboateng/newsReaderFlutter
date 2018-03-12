@@ -68,12 +68,6 @@ class _HomePageState extends State<HomePage> {
 
   buildListOfNewsStories() {
     if (newsStoriesArray.length == 0) {
-      //return new Center(child: new Text("<---- Select a news source!"));
-//      return new Center(
-//          child: new InkWell(
-//              onTap: () => _scaffoldKey.currentState.openDrawer(),
-//              child: new Text("Tap anywhere to shows news sources",
-//                  style: new TextStyle(fontSize: 26.0))));
       return new Row(
         children: <Widget>[
           new Expanded(
