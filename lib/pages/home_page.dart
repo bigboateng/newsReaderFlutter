@@ -70,29 +70,51 @@ class _HomePageState extends State<HomePage> {
       return new Container(
         child: new ListView(
           children: new List.generate(newsStoriesArray.length, (int index) {
+
             String title = newsStoriesArray[index]['title'] == null ? ""  : newsStoriesArray[index]['title'];
             String newsText = newsStoriesArray[index]['description'] == null ? "" : newsStoriesArray[index]['description'];
             String url = newsStoriesArray[index]['url'] == null  ? ""  : newsStoriesArray[index]['url'];
             String imageUrl = newsStoriesArray[index]['urlToImage'] == null ? "" : newsStoriesArray[index]['urlToImage'];
             String dateTime = newsStoriesArray[index]['publishedAt'] == null ? ""  : newsStoriesArray[index]['publishedAt'];
 
-            return new Card(
-                child: new Column(children: <Widget>[
-              new Image.network(imageUrl),
-              new Text(title,
-                  textAlign: TextAlign.left,
-                  style: new TextStyle(
-                      fontSize: 16.0, fontWeight: FontWeight.bold)),
-              new Text(newsText),
-              new Text(dateTime),
-              new ButtonTheme.bar(
-                  child: new ButtonBar(children: <Widget>[
-                new FlatButton(
-                  child: new Text("READ MORE"),
-                  onPressed: () => _launchURL(url),
-                )
-              ]))
-            ]));
+            return new Padding(
+                padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                child: new InkWell(
+                    onTap: () => _launchURL(url),
+                    child: new Card(
+                        elevation: 5.0,
+                        child: new Column(children: <Widget>[
+                          new Image.network(imageUrl),
+                          new Padding(
+                            padding:
+                                new EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                            child: new Text(title,
+                                textAlign: TextAlign.left,
+                                style: new TextStyle(
+                                    fontSize: 26.0,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          new Padding(
+                            padding:
+                                new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                            child: new Text(newsText,
+                                style: new TextStyle(fontSize: 16.0)),
+                          ),
+                          new Padding(
+                              padding: new EdgeInsets.all(16.0),
+                              child: new Row(
+                                children: <Widget>[
+                                  new Expanded(
+                                    child: new Text(dateTime),
+                                  ),
+                                  new Text("READ MORE",
+                                      style: new TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.lightBlue,
+                                          fontWeight: FontWeight.bold))
+                                ],
+                              ))
+                        ]))));
           }),
         ),
       );
