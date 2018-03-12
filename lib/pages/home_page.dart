@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -77,6 +78,12 @@ class _HomePageState extends State<HomePage> {
             String imageUrl = newsStoriesArray[index]['urlToImage'] == null ? "" : newsStoriesArray[index]['urlToImage'];
             String dateTime = newsStoriesArray[index]['publishedAt'] == null ? ""  : newsStoriesArray[index]['publishedAt'];
 
+            String newDateTime = dateTime.substring(0, 19) + "Z";
+            DateTime dtObj = DateTime.parse(newDateTime);
+            DateTime localDtObj = dtObj.toLocal();
+            DateFormat formatter = new DateFormat('MMMM d. yyyy h:mm a');
+            String formattedDate = formatter.format(localDtObj);
+
             return new Padding(
                 padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
                 child: new InkWell(
@@ -105,7 +112,10 @@ class _HomePageState extends State<HomePage> {
                               child: new Row(
                                 children: <Widget>[
                                   new Expanded(
-                                    child: new Text(dateTime),
+                                    child: new Text(formattedDate,
+                                    style: new TextStyle(
+                                      fontStyle: FontStyle.italic
+                                    )),
                                   ),
                                   new Text("READ MORE",
                                       style: new TextStyle(
