@@ -10,11 +10,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String appBarTitle = "News Reader";
   String newsSourceId = "";
   List newsSourcesArray = [];
   List newsStoriesArray = [];
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   @override
   void initState() {
@@ -33,12 +33,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  buildListOfNewsSources(BuildContext context) {
+  buildListOfNewsSources() {
     if (newsSourcesArray.length == 0) {
       return new Center(child: new CircularProgressIndicator());
     } else {
-      return new ListView(
-          children: new List.generate(newsSourcesArray.length, (int index) {
+      return new Drawer(
+          child: new ListView(
+              children: new List.generate(newsSourcesArray.length, (int index) {
         String newsSource = newsSourcesArray[index]['name'];
         return new ListTile(
             title: new Text(newsSource),
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
               newsStoriesArray.clear();
               loadNewsStories();
             });
-      }));
+      })));
     }
   }
 
@@ -67,17 +68,44 @@ class _HomePageState extends State<HomePage> {
 
   buildListOfNewsStories() {
     if (newsStoriesArray.length == 0) {
-      return new Center(child: new Text("<---- Select a news source!"));
+      //return new Center(child: new Text("<---- Select a news source!"));
+//      return new Center(
+//          child: new InkWell(
+//              onTap: () => _scaffoldKey.currentState.openDrawer(),
+//              child: new Text("Tap anywhere to shows news sources",
+//                  style: new TextStyle(fontSize: 26.0))));
+      return new Row(
+        children: <Widget>[
+          new Expanded(
+              child: new InkWell(
+                  onTap: () => _scaffoldKey.currentState.openDrawer(),
+                  child: new Center(
+                      child: new Padding(
+                          padding: new EdgeInsets.all(16.0),
+                          child: new Text("Tap anywhere to shows news sources",
+                              textAlign: TextAlign.center,
+                              style: new TextStyle(fontSize: 26.0))))))
+        ],
+      );
     } else {
       return new Container(
         child: new ListView(
           children: new List.generate(newsStoriesArray.length, (int index) {
-
-            String title = newsStoriesArray[index]['title'] == null ? ""  : newsStoriesArray[index]['title'];
-            String newsText = newsStoriesArray[index]['description'] == null ? "" : newsStoriesArray[index]['description'];
-            String url = newsStoriesArray[index]['url'] == null  ? ""  : newsStoriesArray[index]['url'];
-            String imageUrl = newsStoriesArray[index]['urlToImage'] == null ? "" : newsStoriesArray[index]['urlToImage'];
-            String dateTime = newsStoriesArray[index]['publishedAt'] == null ? ""  : newsStoriesArray[index]['publishedAt'];
+            String title = newsStoriesArray[index]['title'] == null
+                ? ""
+                : newsStoriesArray[index]['title'];
+            String newsText = newsStoriesArray[index]['description'] == null
+                ? ""
+                : newsStoriesArray[index]['description'];
+            String url = newsStoriesArray[index]['url'] == null
+                ? ""
+                : newsStoriesArray[index]['url'];
+            String imageUrl = newsStoriesArray[index]['urlToImage'] == null
+                ? ""
+                : newsStoriesArray[index]['urlToImage'];
+            String dateTime = newsStoriesArray[index]['publishedAt'] == null
+                ? ""
+                : newsStoriesArray[index]['publishedAt'];
 
             String newDateTime = dateTime.substring(0, 19) + "Z";
             DateTime dtObj = DateTime.parse(newDateTime);
@@ -143,11 +171,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        //primary: true,
         key: _scaffoldKey,
         appBar: new AppBar(title: new Text(appBarTitle)),
-        drawer: new Drawer(child: buildListOfNewsSources(context)),
+        drawer: buildListOfNewsSources(),
         body: buildListOfNewsStories());
-    
   }
 }
