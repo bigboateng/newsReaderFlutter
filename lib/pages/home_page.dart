@@ -16,7 +16,8 @@ class _HomePageState extends State<HomePage> {
   List newsSourcesArray = [];
   List newsStoriesArray = [];
   List favoriteNewsSources = [];
-  String _selectedNewsSource = ""; // used to highlight currently selected news source listTile
+  String _selectedNewsSource =
+      ""; // used to highlight currently selected news source listTile
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   @override
