@@ -15,7 +15,9 @@ class _HomePageState extends State<HomePage> {
   String newsSourceId = "";
   List newsSourcesArray = [];
   List newsStoriesArray = [];
-  int _selectedNewsSourceIndex = -1;
+  List favoriteNewsSources = [];
+  int _selectedNewsSourceIndex =
+      -1; // used to highlight currently selected news source listTile
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   @override
@@ -40,10 +42,41 @@ class _HomePageState extends State<HomePage> {
       return new Center(child: new CircularProgressIndicator());
     } else {
       return new Drawer(
-          child: new Scrollbar( child: new ListView(
-              children: new List.generate(newsSourcesArray.length, (int index) {
+          child: new Scrollbar(
+              child: new ListView(
+                  children:
+                      new List.generate(newsSourcesArray.length, (int index) {
         String newsSource = newsSourcesArray[index]['name'];
         return new ListTile(
+            leading: new Container(
+                height: 75.0,
+                width: 100.0,
+                child: new InkWell(
+                    child: favoriteNewsSources.contains(newsSource)
+                        ? const Icon(Icons.favorite)
+                        : const Icon(Icons.favorite_border),
+                    onTap: () {
+                      setState(() {
+                        favoriteNewsSources.add(newsSource); // Save to sharedPrefs
+                        print("Added " + newsSource + " to favorite news");
+
+                        newsSourcesArray.sort((a,b) {
+                          // both
+                          if (favoriteNewsSources.contains(a['name']) && favoriteNewsSources.contains(b['name']))
+                            return 0;
+                          // a and NOT b
+                          else if (favoriteNewsSources.contains(a['name']) && !favoriteNewsSources.contains(b['name']))
+                            return -1;
+                          // NOT a, but b
+                          else if (!favoriteNewsSources.contains(a['name']) && favoriteNewsSources.contains(b['name']))
+                            return 1;
+                          // none
+                          else
+                            return a['name'].compareTo(b['name']);
+                        });
+
+                      });
+                    })),
             title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
             selected: index == _selectedNewsSourceIndex,
             onTap: () {
