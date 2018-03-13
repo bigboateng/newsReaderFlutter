@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _HomePageState extends State<HomePage> {
   String newsSourceId = "";
   List newsSourcesArray = [];
   List newsStoriesArray = [];
+  int _selectedNewsSourceIndex = -1;
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   @override
@@ -42,11 +44,14 @@ class _HomePageState extends State<HomePage> {
               children: new List.generate(newsSourcesArray.length, (int index) {
         String newsSource = newsSourcesArray[index]['name'];
         return new ListTile(
-            title: new Text(newsSource),
+            title: new Text(newsSource,
+            style: new TextStyle(fontSize: 20.0)),
+            selected: index == _selectedNewsSourceIndex,
             onTap: () {
               Navigator.pop(context);
               newsSourceId = newsSourcesArray[index]['id'];
               appBarTitle = newsSourcesArray[index]['name'];
+              _selectedNewsSourceIndex = index;
               newsStoriesArray.clear();
               loadNewsStories();
             });
@@ -66,6 +71,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future refreshNewsStories() async {
+    loadNewsStories();
+    return new Future(()=> 1);
+  }
+
+
   buildListOfNewsStories() {
     if (newsStoriesArray.length == 0) {
       return new Row(
@@ -83,7 +94,9 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       return new Container(
-        child: new ListView(
+        child: new RefreshIndicator(
+          onRefresh: () => refreshNewsStories(),
+            child: new ListView(
           children: new List.generate(newsStoriesArray.length, (int index) {
             String title = newsStoriesArray[index]['title'] == null
                 ? ""
@@ -148,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                               ))
                         ]))));
           }),
-        ),
+        )),
       );
     }
   }
