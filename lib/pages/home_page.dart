@@ -212,7 +212,7 @@ class _HomePageState extends State<HomePage> {
       // both
       if (favoriteNewsSources.contains(a['name']) &&
           favoriteNewsSources.contains(b['name']))
-        return 0;
+        return a['name'].compareTo(b['name']);
       // a and NOT b
       else if (favoriteNewsSources.contains(a['name']) &&
           !favoriteNewsSources.contains(b['name']))
