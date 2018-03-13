@@ -40,12 +40,11 @@ class _HomePageState extends State<HomePage> {
       return new Center(child: new CircularProgressIndicator());
     } else {
       return new Drawer(
-          child: new ListView(
+          child: new Scrollbar( child: new ListView(
               children: new List.generate(newsSourcesArray.length, (int index) {
         String newsSource = newsSourcesArray[index]['name'];
         return new ListTile(
-            title: new Text(newsSource,
-            style: new TextStyle(fontSize: 20.0)),
+            title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
             selected: index == _selectedNewsSourceIndex,
             onTap: () {
               Navigator.pop(context);
@@ -55,7 +54,7 @@ class _HomePageState extends State<HomePage> {
               newsStoriesArray.clear();
               loadNewsStories();
             });
-      })));
+      }))));
     }
   }
 
@@ -73,9 +72,8 @@ class _HomePageState extends State<HomePage> {
 
   Future refreshNewsStories() async {
     loadNewsStories();
-    return new Future(()=> 1);
+    return new Future(() => 1);
   }
-
 
   buildListOfNewsStories() {
     if (newsStoriesArray.length == 0) {
@@ -93,75 +91,76 @@ class _HomePageState extends State<HomePage> {
         ],
       );
     } else {
-      return new Container(
+      return new Scrollbar(
         child: new RefreshIndicator(
-          onRefresh: () => refreshNewsStories(),
+            onRefresh: () => refreshNewsStories(),
             child: new ListView(
-          children: new List.generate(newsStoriesArray.length, (int index) {
-            String title = newsStoriesArray[index]['title'] == null
-                ? ""
-                : newsStoriesArray[index]['title'];
-            String newsText = newsStoriesArray[index]['description'] == null
-                ? ""
-                : newsStoriesArray[index]['description'];
-            String url = newsStoriesArray[index]['url'] == null
-                ? ""
-                : newsStoriesArray[index]['url'];
-            String imageUrl = newsStoriesArray[index]['urlToImage'] == null
-                ? ""
-                : newsStoriesArray[index]['urlToImage'];
-            String dateTime = newsStoriesArray[index]['publishedAt'] == null
-                ? ""
-                : newsStoriesArray[index]['publishedAt'];
+              shrinkWrap: true,
+              children: new List.generate(newsStoriesArray.length, (int index) {
+                String title = newsStoriesArray[index]['title'] == null
+                    ? ""
+                    : newsStoriesArray[index]['title'];
+                String newsText = newsStoriesArray[index]['description'] == null
+                    ? ""
+                    : newsStoriesArray[index]['description'];
+                String url = newsStoriesArray[index]['url'] == null
+                    ? ""
+                    : newsStoriesArray[index]['url'];
+                String imageUrl = newsStoriesArray[index]['urlToImage'] == null
+                    ? ""
+                    : newsStoriesArray[index]['urlToImage'];
+                String dateTime = newsStoriesArray[index]['publishedAt'] == null
+                    ? ""
+                    : newsStoriesArray[index]['publishedAt'];
 
-            String newDateTime = dateTime.substring(0, 19) + "Z";
-            DateTime dtObj = DateTime.parse(newDateTime);
-            DateTime localDtObj = dtObj.toLocal();
-            DateFormat formatter = new DateFormat('MMMM d. yyyy h:mm a');
-            String formattedDate = formatter.format(localDtObj);
+                String newDateTime = dateTime.substring(0, 19) + "Z";
+                DateTime dtObj = DateTime.parse(newDateTime);
+                DateTime localDtObj = dtObj.toLocal();
+                DateFormat formatter = new DateFormat('MMMM d. yyyy h:mm a');
+                String formattedDate = formatter.format(localDtObj);
 
-            return new Padding(
-                padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                child: new InkWell(
-                    onTap: () => _launchURL(url),
-                    child: new Card(
-                        elevation: 5.0,
-                        child: new Column(children: <Widget>[
-                          new Image.network(imageUrl),
-                          new Padding(
-                            padding:
-                                new EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                            child: new Text(title,
-                                textAlign: TextAlign.left,
-                                style: new TextStyle(
-                                    fontSize: 26.0,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                          new Padding(
-                            padding:
-                                new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                            child: new Text(newsText,
-                                style: new TextStyle(fontSize: 16.0)),
-                          ),
-                          new Padding(
-                              padding: new EdgeInsets.all(16.0),
-                              child: new Row(
-                                children: <Widget>[
-                                  new Expanded(
-                                    child: new Text(formattedDate,
-                                        style: new TextStyle(
-                                            fontStyle: FontStyle.italic)),
-                                  ),
-                                  new Text("READ MORE",
-                                      style: new TextStyle(
-                                          fontSize: 16.0,
-                                          color: Colors.lightBlue,
-                                          fontWeight: FontWeight.bold))
-                                ],
-                              ))
-                        ]))));
-          }),
-        )),
+                return new Padding(
+                    padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                    child: new InkWell(
+                        onTap: () => _launchURL(url),
+                        child: new Card(
+                            elevation: 5.0,
+                            child: new Column(children: <Widget>[
+                              new Image.network(imageUrl),
+                              new Padding(
+                                padding:
+                                    new EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                                child: new Text(title,
+                                    textAlign: TextAlign.left,
+                                    style: new TextStyle(
+                                        fontSize: 26.0,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              new Padding(
+                                padding: new EdgeInsets.fromLTRB(
+                                    16.0, 8.0, 16.0, 8.0),
+                                child: new Text(newsText,
+                                    style: new TextStyle(fontSize: 16.0)),
+                              ),
+                              new Padding(
+                                  padding: new EdgeInsets.all(16.0),
+                                  child: new Row(
+                                    children: <Widget>[
+                                      new Expanded(
+                                        child: new Text(formattedDate,
+                                            style: new TextStyle(
+                                                fontStyle: FontStyle.italic)),
+                                      ),
+                                      new Text("READ MORE",
+                                          style: new TextStyle(
+                                              fontSize: 16.0,
+                                              color: Colors.lightBlue,
+                                              fontWeight: FontWeight.bold))
+                                    ],
+                                  ))
+                            ]))));
+              }),
+            )),
       );
     }
   }
