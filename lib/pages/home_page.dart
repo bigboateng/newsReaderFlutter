@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // TODO: Load favoriteNewsSources from sharedPrefs
     loadNewsSources();
   }
 
@@ -34,6 +35,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       Map<String, dynamic> newsSources = JSON.decode(response.body);
       newsSourcesArray = newsSources['sources'];
+
+      // TODO: sort newsSourcesArray here
     });
   }
 
@@ -58,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       setState(() {
                         favoriteNewsSources
-                            .add(newsSource); // Save to sharedPrefs
+                            .add(newsSource); // TODO: Save to sharedPrefs
                         sortNewsSourcesArray();
                       });
                     })),
@@ -210,19 +213,19 @@ class _HomePageState extends State<HomePage> {
 
   sortNewsSourcesArray() {
     newsSourcesArray.sort((a, b) {
-      // both
+      // both - sort alphabetically
       if (favoriteNewsSources.contains(a['name']) &&
           favoriteNewsSources.contains(b['name']))
         return a['name'].compareTo(b['name']);
-      // a and NOT b
+      // a and NOT b (a comes before b)
       else if (favoriteNewsSources.contains(a['name']) &&
           !favoriteNewsSources.contains(b['name']))
         return -1;
-      // NOT a, but b
+      // NOT a, but b (a comes after b)
       else if (!favoriteNewsSources.contains(a['name']) &&
           favoriteNewsSources.contains(b['name']))
         return 1;
-      // none
+      // none - sort alphabetically
       else
         return a['name'].compareTo(b['name']);
     });
