@@ -16,8 +16,7 @@ class _HomePageState extends State<HomePage> {
   List newsSourcesArray = [];
   List newsStoriesArray = [];
   List favoriteNewsSources = [];
-  int _selectedNewsSourceIndex =
-      -1; // used to highlight currently selected news source listTile
+  String _selectedNewsSource = ""; // used to highlight currently selected news source listTile
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   @override
@@ -57,33 +56,18 @@ class _HomePageState extends State<HomePage> {
                         : const Icon(Icons.favorite_border),
                     onTap: () {
                       setState(() {
-                        favoriteNewsSources.add(newsSource); // Save to sharedPrefs
-                        print("Added " + newsSource + " to favorite news");
-
-                        newsSourcesArray.sort((a,b) {
-                          // both
-                          if (favoriteNewsSources.contains(a['name']) && favoriteNewsSources.contains(b['name']))
-                            return 0;
-                          // a and NOT b
-                          else if (favoriteNewsSources.contains(a['name']) && !favoriteNewsSources.contains(b['name']))
-                            return -1;
-                          // NOT a, but b
-                          else if (!favoriteNewsSources.contains(a['name']) && favoriteNewsSources.contains(b['name']))
-                            return 1;
-                          // none
-                          else
-                            return a['name'].compareTo(b['name']);
-                        });
-
+                        favoriteNewsSources
+                            .add(newsSource); // Save to sharedPrefs
+                        sortNewsSourcesArray();
                       });
                     })),
             title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
-            selected: index == _selectedNewsSourceIndex,
+            selected: _selectedNewsSource == newsSourcesArray[index]['name'],
             onTap: () {
               Navigator.pop(context);
               newsSourceId = newsSourcesArray[index]['id'];
               appBarTitle = newsSourcesArray[index]['name'];
-              _selectedNewsSourceIndex = index;
+              _selectedNewsSource = newsSourcesArray[index]['name'];
               newsStoriesArray.clear();
               loadNewsStories();
             });
@@ -101,11 +85,6 @@ class _HomePageState extends State<HomePage> {
       Map<String, dynamic> newsStories = JSON.decode(response.body);
       newsStoriesArray = newsStories['articles'];
     });
-  }
-
-  Future refreshNewsStories() async {
-    loadNewsStories();
-    return new Future(() => 1);
   }
 
   buildListOfNewsStories() {
@@ -128,7 +107,6 @@ class _HomePageState extends State<HomePage> {
         child: new RefreshIndicator(
             onRefresh: () => refreshNewsStories(),
             child: new ListView(
-              shrinkWrap: true,
               children: new List.generate(newsStoriesArray.length, (int index) {
                 String title = newsStoriesArray[index]['title'] == null
                     ? ""
@@ -146,11 +124,7 @@ class _HomePageState extends State<HomePage> {
                     ? ""
                     : newsStoriesArray[index]['publishedAt'];
 
-                String newDateTime = dateTime.substring(0, 19) + "Z";
-                DateTime dtObj = DateTime.parse(newDateTime);
-                DateTime localDtObj = dtObj.toLocal();
-                DateFormat formatter = new DateFormat('MMMM d. yyyy h:mm a');
-                String formattedDate = formatter.format(localDtObj);
+                String formattedDate = formatDate(dateTime);
 
                 return new Padding(
                     padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -198,6 +172,32 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        key: _scaffoldKey,
+        appBar: new AppBar(title: new Text(appBarTitle)),
+        drawer: buildListOfNewsSources(),
+        body: buildListOfNewsStories());
+  }
+
+  /*
+  * HELPER FUNCTIONS BELOW...
+  */
+
+  String formatDate(String dateTime) {
+    String formattedDate = "";
+
+    if (dateTime != "") {
+      String newDateTime = dateTime.substring(0, 19) + "Z";
+      DateTime dtObj = DateTime.parse(newDateTime);
+      DateTime localDtObj = dtObj.toLocal();
+      DateFormat formatter = new DateFormat('MMMM d. yyyy h:mm a');
+      formattedDate = formatter.format(localDtObj);
+    }
+    return formattedDate;
+  }
+
   _launchURL(String urlToOpen) async {
     String url = urlToOpen;
     if (await canLaunch(url)) {
@@ -207,12 +207,28 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-        key: _scaffoldKey,
-        appBar: new AppBar(title: new Text(appBarTitle)),
-        drawer: buildListOfNewsSources(),
-        body: buildListOfNewsStories());
+  sortNewsSourcesArray() {
+    newsSourcesArray.sort((a, b) {
+      // both
+      if (favoriteNewsSources.contains(a['name']) &&
+          favoriteNewsSources.contains(b['name']))
+        return 0;
+      // a and NOT b
+      else if (favoriteNewsSources.contains(a['name']) &&
+          !favoriteNewsSources.contains(b['name']))
+        return -1;
+      // NOT a, but b
+      else if (!favoriteNewsSources.contains(a['name']) &&
+          favoriteNewsSources.contains(b['name']))
+        return 1;
+      // none
+      else
+        return a['name'].compareTo(b['name']);
+    });
+  }
+
+  Future refreshNewsStories() async {
+    loadNewsStories();
+    return new Future(() => 1);
   }
 }
