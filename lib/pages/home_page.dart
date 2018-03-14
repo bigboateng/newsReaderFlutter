@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   String appBarTitle = "News Reader";
   String newsSourceId = "";
   List newsSourcesArray = [];
@@ -23,8 +25,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // TODO: Load favoriteNewsSources from sharedPrefs
-    loadNewsSources();
+
+    getFavoriteNewsSourcesFromDisk()
+    .then((asd) => loadNewsSources())
+    .then((asd) => sortNewsSourcesArray());
   }
 
   loadNewsSources() async {
@@ -35,14 +39,12 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       Map<String, dynamic> newsSources = JSON.decode(response.body);
       newsSourcesArray = newsSources['sources'];
-
-      // TODO: sort newsSourcesArray here
     });
   }
 
   buildListOfNewsSources() {
     if (newsSourcesArray.length == 0) {
-      return new Center(child: new CircularProgressIndicator());
+      return new Drawer(child: new Center(child: new CircularProgressIndicator()));
     } else {
       return new Drawer(
           child: new Scrollbar(
@@ -61,7 +63,8 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       setState(() {
                         favoriteNewsSources
-                            .add(newsSource); // TODO: Save to sharedPrefs
+                            .add(newsSource);
+                        saveFavoriteNewsSourcesToDisk();
                         sortNewsSourcesArray();
                       });
                     })),
@@ -234,5 +237,19 @@ class _HomePageState extends State<HomePage> {
   Future refreshNewsStories() async {
     loadNewsStories();
     return new Future(() => 1);
+  }
+
+  saveFavoriteNewsSourcesToDisk() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList(FAVORITE_NEWS_SOURCES, favoriteNewsSources);
+  }
+
+  getFavoriteNewsSourcesFromDisk() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (prefs.getStringList(FAVORITE_NEWS_SOURCES) == null)
+      favoriteNewsSources = new List();
+    else
+      favoriteNewsSources = new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
   }
 }
