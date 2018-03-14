@@ -6,12 +6,23 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
+final ThemeData _kGalleryDarkTheme = new ThemeData(
+  brightness: Brightness.dark,
+  primarySwatch: Colors.blue,
+);
+
+final ThemeData _kGalleryLightTheme = new ThemeData(
+  brightness: Brightness.light,
+  primarySwatch: Colors.blue,
+);
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => new _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  bool useDarkTheme = false;
   final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   String appBarTitle = "News Reader";
   String newsSourceId = "";
@@ -21,7 +32,8 @@ class _HomePageState extends State<HomePage> {
   String _selectedNewsSource =
       ""; // used to highlight currently selected news source listTile
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
 
   @override
@@ -29,8 +41,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     getFavoriteNewsSourcesFromDisk()
-    .then((asd) => loadNewsSources())
-    .then((asd) => sortNewsSourcesArray());
+        .then((asd) => loadNewsSources())
+        .then((asd) => sortNewsSourcesArray());
   }
 
   loadNewsSources() async {
@@ -46,7 +58,8 @@ class _HomePageState extends State<HomePage> {
 
   buildListOfNewsSources() {
     if (newsSourcesArray.length == 0) {
-      return new Drawer(child: new Center(child: new CircularProgressIndicator()));
+      return new Drawer(
+          child: new Center(child: new CircularProgressIndicator()));
     } else {
       return new Drawer(
           child: new Scrollbar(
@@ -64,8 +77,7 @@ class _HomePageState extends State<HomePage> {
                         : const Icon(Icons.favorite_border),
                     onTap: () {
                       setState(() {
-                        favoriteNewsSources
-                            .add(newsSource);
+                        favoriteNewsSources.add(newsSource);
                         saveFavoriteNewsSourcesToDisk();
                         sortNewsSourcesArray();
                       });
@@ -185,16 +197,42 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        key: _scaffoldKey,
-        appBar: new AppBar(title: new Text(appBarTitle)),
-        drawer: buildListOfNewsSources(),
-        body: buildListOfNewsStories());
+    return new Theme(
+        data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+        child: new Scaffold(
+            key: _scaffoldKey,
+            appBar: buildAppBar(),
+            drawer: buildListOfNewsSources(),
+            body: buildListOfNewsStories()));
+  }
+
+  buildAppBar() {
+    return new AppBar(
+      title: new Text(appBarTitle),
+      actions: <Widget>[
+        setIconForTheme(),
+        new Switch(
+          value: useDarkTheme,
+          onChanged: (bool value) {
+            setState(() {
+              useDarkTheme = value;
+            });
+          },
+        )
+      ],
+    );
   }
 
   /*
   * HELPER FUNCTIONS BELOW...
   */
+
+  setIconForTheme() {
+    if (useDarkTheme)
+      return new Icon(Icons.wb_sunny);
+    else
+      return new Icon(Icons.brightness_2);
+  }
 
   String formatDate(String dateTime) {
     String formattedDate = "";
@@ -243,7 +281,9 @@ class _HomePageState extends State<HomePage> {
 
     // Show refresh indicator for 3 seconds
     final Completer<Null> completer = new Completer<Null>();
-    new Timer(const Duration(seconds: 3), () { completer.complete(null); });
+    new Timer(const Duration(seconds: 2), () {
+      completer.complete(null);
+    });
     return completer.future;
   }
 
@@ -258,6 +298,7 @@ class _HomePageState extends State<HomePage> {
     if (prefs.getStringList(FAVORITE_NEWS_SOURCES) == null)
       favoriteNewsSources = new List();
     else
-      favoriteNewsSources = new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
+      favoriteNewsSources =
+          new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
   }
 }
