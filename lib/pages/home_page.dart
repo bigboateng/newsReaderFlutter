@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   String _selectedNewsSource =
       ""; // used to highlight currently selected news source listTile
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
 
   @override
@@ -72,8 +73,7 @@ class _HomePageState extends State<HomePage> {
             title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
             selected: _selectedNewsSource == newsSourcesArray[index]['name'],
             onTap: () {
-              if (_scrollController.hasClients)
-                _scrollController.jumpTo(0.0);
+              if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
               Navigator.pop(context);
               newsSourceId = newsSourcesArray[index]['id'];
               appBarTitle = newsSourcesArray[index]['name'];
@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       return new Scrollbar(
         child: new RefreshIndicator(
-            onRefresh: () => loadNewsStories(),
+            onRefresh: () => refreshNewsStories(),
             child: new ListView(
               controller: _scrollController,
               children: new List.generate(newsStoriesArray.length, (int index) {
@@ -240,7 +240,11 @@ class _HomePageState extends State<HomePage> {
 
   Future refreshNewsStories() async {
     loadNewsStories();
-    return new Future(() => 1);
+
+    // Show refresh indicator for 3 seconds
+    final Completer<Null> completer = new Completer<Null>();
+    new Timer(const Duration(seconds: 3), () { completer.complete(null); });
+    return completer.future;
   }
 
   saveFavoriteNewsSourcesToDisk() async {
