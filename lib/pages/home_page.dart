@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   String _selectedNewsSource =
       ""; // used to highlight currently selected news source listTile
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  ScrollController _scrollController = new ScrollController();
 
   @override
   void initState() {
@@ -71,6 +72,8 @@ class _HomePageState extends State<HomePage> {
             title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
             selected: _selectedNewsSource == newsSourcesArray[index]['name'],
             onTap: () {
+              if (_scrollController.hasClients)
+                _scrollController.jumpTo(0.0);
               Navigator.pop(context);
               newsSourceId = newsSourcesArray[index]['id'];
               appBarTitle = newsSourcesArray[index]['name'];
@@ -112,8 +115,9 @@ class _HomePageState extends State<HomePage> {
     } else {
       return new Scrollbar(
         child: new RefreshIndicator(
-            onRefresh: () => refreshNewsStories(),
+            onRefresh: () => loadNewsStories(),
             child: new ListView(
+              controller: _scrollController,
               children: new List.generate(newsStoriesArray.length, (int index) {
                 String title = newsStoriesArray[index]['title'] == null
                     ? ""
