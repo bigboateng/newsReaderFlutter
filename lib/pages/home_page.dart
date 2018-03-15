@@ -115,17 +115,24 @@ class _HomePageState extends State<HomePage> {
 
   buildListOfNewsStories() {
     if (newsStoriesArray.length == 0) {
+      double screenWidth = MediaQuery.of(context).size.width;
       return new Row(
         children: <Widget>[
           new Expanded(
               child: new InkWell(
                   onTap: () => _scaffoldKey.currentState.openDrawer(),
                   child: new Center(
-                      child: new Padding(
-                          padding: new EdgeInsets.all(16.0),
-                          child: new Text("Tap anywhere to show news sources",
-                              textAlign: TextAlign.center,
-                              style: new TextStyle(fontSize: 26.0))))))
+                  child: new Material( elevation: 15.0,
+                    shape: new CircleBorder(),
+                    child: new CircleAvatar(
+                      radius: screenWidth / 3,
+                      child: new Text("Tap to begin",
+                      textAlign: TextAlign.center,
+                      style: new TextStyle(fontSize: 26.0))
+                    ))
+                  )
+              )
+          )
         ],
       );
     } else {
