@@ -77,7 +77,11 @@ class _HomePageState extends State<HomePage> {
                         : const Icon(Icons.favorite_border),
                     onTap: () {
                       setState(() {
-                        favoriteNewsSources.add(newsSource);
+                        if (favoriteNewsSources.contains(newsSource))
+                          favoriteNewsSources.remove(newsSource);
+                        else
+                          favoriteNewsSources.add(newsSource);
+
                         saveFavoriteNewsSourcesToDisk();
                         sortNewsSourcesArray();
                       });
