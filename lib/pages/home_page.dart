@@ -23,8 +23,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool useDarkTheme = false;
   final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
+  final String USE_DARK_THEME = "USE_DARK_THEME";
+
+  bool useDarkTheme = false;
   String appBarTitle = "News Reader";
   String newsSourceId = "";
   List newsSourcesArray = [];
@@ -43,7 +45,8 @@ class _HomePageState extends State<HomePage> {
 
     getFavoriteNewsSourcesFromDisk()
         .then((asd) => loadNewsSources())
-        .then((asd) => sortNewsSourcesArray());
+        .then((asd) => sortNewsSourcesArray())
+        .then((asd) => getThemeSelectionFromDisk());
   }
 
   loadNewsSources() async {
@@ -231,6 +234,7 @@ class _HomePageState extends State<HomePage> {
         new Switch(
           value: useDarkTheme,
           onChanged: (bool value) {
+            saveThemeSelectionToDisk(value);
             setState(() {
               useDarkTheme = value;
             });
@@ -302,6 +306,21 @@ class _HomePageState extends State<HomePage> {
       completer.complete(null);
     });
     return completer.future;
+  }
+
+  saveThemeSelectionToDisk(bool useDarkTheme) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(USE_DARK_THEME, useDarkTheme);
+  }
+
+  getThemeSelectionFromDisk() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool shouldUseDarkTheme = prefs.getBool(USE_DARK_THEME);
+
+    if (shouldUseDarkTheme != null)
+      setState(() {
+        useDarkTheme = shouldUseDarkTheme;
+      });
   }
 
   saveFavoriteNewsSourcesToDisk() async {
