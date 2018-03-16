@@ -130,10 +130,10 @@ class _HomePageState extends State<HomePage> {
                           elevation: 15.0,
                           shape: new CircleBorder(),
                           child: new CircleAvatar(
-                              radius: screenWidth / 3,
-                              child: new Text("Tap to begin",
-                                  textAlign: TextAlign.center,
-                                  style: new TextStyle(fontSize: 26.0)))))))
+                            radius: screenWidth / 3,
+                            child: new Icon(Icons.touch_app,
+                                size: screenWidth / 3),
+                          )))))
         ],
       );
     } else {
@@ -168,47 +168,57 @@ class _HomePageState extends State<HomePage> {
                         child: new Card(
                             elevation: 5.0,
                             child: new Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                              new Image.network(imageUrl),
-                              new Padding(
-                                padding:
-                                    new EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                                child: new Text(title,
-                                    textAlign: TextAlign.left,
-                                    style: new TextStyle(
-                                        fontSize: 26.0,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                              new Padding(
-                                padding: new EdgeInsets.fromLTRB(
-                                    16.0, 8.0, 16.0, 8.0),
-                                child: new Text(newsText,
-                                    style: new TextStyle(fontSize: 16.0)),
-                              ),
-                              new Padding(
-                                  padding: new EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                                  child: new Row(
-                                    children: <Widget>[
-                                      new Expanded(
-                                        child: new Text(formattedDate,
-                                            style: new TextStyle(
-                                                fontStyle: FontStyle.italic)),
-                                      ),
-                                      new IconButton(
-                                          icon: new Icon(Icons.share, color: Colors.blue,),
-                                          padding: new EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
-                                          iconSize: 32.0,
-                                          onPressed: () => sharing.share(
-                                              '"' + title + '"' + " " + url)),
-                                      new Text("READ MORE",
-                                          style: new TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.bold))
-                                    ],
-                                  ))
-                            ]))));
+                                  new Image.network(imageUrl),
+                                  new Padding(
+                                    padding: new EdgeInsets.fromLTRB(
+                                        8.0, 8.0, 8.0, 8.0),
+                                    child: new Text(title,
+                                        textAlign: TextAlign.left,
+                                        style: new TextStyle(
+                                            fontSize: 26.0,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                  new Padding(
+                                    padding: new EdgeInsets.fromLTRB(
+                                        16.0, 8.0, 16.0, 8.0),
+                                    child: new Text(newsText,
+                                        style: new TextStyle(fontSize: 16.0)),
+                                  ),
+                                  new Padding(
+                                      padding: new EdgeInsets.fromLTRB(
+                                          16.0, 16.0, 16.0, 8.0),
+                                      child: new Row(
+                                        children: <Widget>[
+                                          new Expanded(
+                                            child: new Text(formattedDate,
+                                                style: new TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic)),
+                                          ),
+                                          new IconButton(
+                                              icon: new Icon(
+                                                Icons.share,
+                                                color: Colors.blue,
+                                              ),
+                                              padding: new EdgeInsets.fromLTRB(
+                                                  0.0, 0.0, 16.0, 0.0),
+                                              iconSize: 32.0,
+                                              onPressed: () => sharing.share(
+                                                  '"' +
+                                                      title +
+                                                      '"' +
+                                                      " " +
+                                                      url)),
+                                          new Text("READ MORE",
+                                              style: new TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold))
+                                        ],
+                                      ))
+                                ]))));
               }),
             )),
       );
