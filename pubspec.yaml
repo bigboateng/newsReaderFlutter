@@ -13,6 +13,7 @@ dependencies:
   http: '>=0.11.3+12'  # for making HTTP calls
   intl: "^0.15.2"      # for formatting dates
   shared_preferences: "^0.4.0" # for saving to persistent storage
+  share: "^0.4.0"      # for sharing news articles
 
 dev_dependencies:
   flutter_test:

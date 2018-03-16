@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share/share.dart' as sharing;
 
 final ThemeData _kGalleryDarkTheme = new ThemeData(
   brightness: Brightness.dark,
@@ -122,17 +123,14 @@ class _HomePageState extends State<HomePage> {
               child: new InkWell(
                   onTap: () => _scaffoldKey.currentState.openDrawer(),
                   child: new Center(
-                  child: new Material( elevation: 15.0,
-                    shape: new CircleBorder(),
-                    child: new CircleAvatar(
-                      radius: screenWidth / 3,
-                      child: new Text("Tap to begin",
-                      textAlign: TextAlign.center,
-                      style: new TextStyle(fontSize: 26.0))
-                    ))
-                  )
-              )
-          )
+                      child: new Material(
+                          elevation: 15.0,
+                          shape: new CircleBorder(),
+                          child: new CircleAvatar(
+                              radius: screenWidth / 3,
+                              child: new Text("Tap to begin",
+                                  textAlign: TextAlign.center,
+                                  style: new TextStyle(fontSize: 26.0)))))))
         ],
       );
     } else {
@@ -166,7 +164,9 @@ class _HomePageState extends State<HomePage> {
                         onTap: () => _launchURL(url),
                         child: new Card(
                             elevation: 5.0,
-                            child: new Column(children: <Widget>[
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
                               new Image.network(imageUrl),
                               new Padding(
                                 padding:
@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                                     style: new TextStyle(fontSize: 16.0)),
                               ),
                               new Padding(
-                                  padding: new EdgeInsets.all(16.0),
+                                  padding: new EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                                   child: new Row(
                                     children: <Widget>[
                                       new Expanded(
@@ -192,10 +192,16 @@ class _HomePageState extends State<HomePage> {
                                             style: new TextStyle(
                                                 fontStyle: FontStyle.italic)),
                                       ),
+                                      new IconButton(
+                                          icon: new Icon(Icons.share, color: Colors.blue,),
+                                          padding: new EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+                                          iconSize: 32.0,
+                                          onPressed: () => sharing.share(
+                                              '"' + title + '"' + " " + url)),
                                       new Text("READ MORE",
                                           style: new TextStyle(
                                               fontSize: 16.0,
-                                              color: Colors.lightBlue,
+                                              color: Colors.blue,
                                               fontWeight: FontWeight.bold))
                                     ],
                                   ))
