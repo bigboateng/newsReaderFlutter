@@ -38,16 +38,27 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
+  SharedPreferences prefs = null;
 
   @override
   void initState() {
     super.initState();
 
-    getFavoriteNewsSourcesFromDisk()
+//    getFavoriteNewsSourcesFromDisk()
+//        .then((asd) => loadNewsSources())
+//        .then((asd) => sortNewsSourcesArray())
+//        .then((asd) => getThemeSelectionFromDisk());
+
+    initSharedPreferences()
+        .then((asd) => getFavoriteNewsSourcesFromDisk())
         .then((asd) => loadNewsSources())
         .then((asd) => sortNewsSourcesArray())
         .then((asd) => getThemeSelectionFromDisk());
   }
+
+  /*
+   * HTTP methods begin
+   */
 
   loadNewsSources() async {
     String dataUrl =
@@ -116,6 +127,35 @@ class _HomePageState extends State<HomePage> {
       newsStoriesArray = newsStories['articles'];
     });
   }
+
+  loadNewsStoriesFromSearch(String keyWord) async {
+    // get today's date
+    DateTime dateTimeObj = new DateTime.now();
+    String today = formatDateForSearchQuery(dateTimeObj);
+
+    // get yesterday's date
+    dateTimeObj = dateTimeObj.add(new Duration(days: -1));
+    String yesterday = formatDateForSearchQuery(dateTimeObj);
+
+    String searchUrl = "https://newsapi.org/v2/everything?q=" +
+        keyWord +
+        "&from=" +
+        yesterday +
+        "&to=" +
+        today +
+        "&language=en&sortBy=publishedAt&apiKey=a30edf50cbbb48049945142f004c36c3";
+
+    http.Response response = await http.get(searchUrl);
+
+    setState(() {
+      Map<String, dynamic> newsStories = JSON.decode(response.body);
+      newsStoriesArray = newsStories['articles'];
+    });
+  }
+
+  /*
+   * UI methods begin
+   */
 
   buildListOfNewsStories() {
     if (newsStoriesArray == null || newsStoriesArray.length == 0) {
@@ -257,10 +297,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /*
-  * HELPER FUNCTIONS BELOW...
-  */
-
   Future<Null> showSearchDialog() async {
     TextEditingController _textFieldController = new TextEditingController();
     double screenWidth = MediaQuery.of(context).size.width;
@@ -298,7 +334,8 @@ class _HomePageState extends State<HomePage> {
                 child: new Text('SEARCH'),
                 onPressed: () {
                   newsStoriesArray.clear();
-                  appBarTitle = "'" + _textFieldController.text + "'" + " results";
+                  appBarTitle =
+                      "'" + _textFieldController.text + "'" + " results";
                   loadNewsStoriesFromSearch(_textFieldController.text);
                   Navigator.of(context).pop();
                 },
@@ -308,30 +345,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  loadNewsStoriesFromSearch(String keyWord) async {
-    // get today's date
-    DateTime dateTimeObj = new DateTime.now();
-    String today = formatDateForSearchQuery(dateTimeObj);
-
-    // get yesterday's date
-    dateTimeObj = dateTimeObj.add(new Duration(days: -1));
-    String yesterday = formatDateForSearchQuery(dateTimeObj);
-
-    String searchUrl = "https://newsapi.org/v2/everything?q=" +
-        keyWord +
-        "&from=" +
-        yesterday +
-        "&to=" +
-        today +
-        "&language=en&sortBy=publishedAt&apiKey=a30edf50cbbb48049945142f004c36c3";
-
-    http.Response response = await http.get(searchUrl);
-
-    setState(() {
-      Map<String, dynamic> newsStories = JSON.decode(response.body);
-      newsStoriesArray = newsStories['articles'];
-    });
-  }
+  /*
+  * HELPER FUNCTIONS BELOW...
+  */
 
   setIconForTheme() {
     if (useDarkTheme)
@@ -399,12 +415,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   saveThemeSelectionToDisk(bool useDarkTheme) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool(USE_DARK_THEME, useDarkTheme);
   }
 
   getThemeSelectionFromDisk() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     bool shouldUseDarkTheme = prefs.getBool(USE_DARK_THEME);
 
     if (shouldUseDarkTheme != null)
@@ -414,13 +428,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   saveFavoriteNewsSourcesToDisk() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList(FAVORITE_NEWS_SOURCES, favoriteNewsSources);
   }
 
   getFavoriteNewsSourcesFromDisk() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
     if (prefs.getStringList(FAVORITE_NEWS_SOURCES) == null)
       favoriteNewsSources = new List();
     else
@@ -433,5 +444,9 @@ class _HomePageState extends State<HomePage> {
       return new Image.network(imageUrl);
     else
       return new SizedBox(width: 0.0, height: 0.0);
+  }
+
+  initSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
   }
 }
