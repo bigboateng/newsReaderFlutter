@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  new Image.network(imageUrl),
+                                  showImage(imageUrl),
                                   new Padding(
                                     padding: new EdgeInsets.fromLTRB(
                                         8.0, 8.0, 8.0, 8.0),
@@ -279,6 +279,7 @@ class _HomePageState extends State<HomePage> {
                     height: 50.0,
                     child: new TextField(
                       controller: _textFieldController,
+                      maxLength: 50,
                       decoration:
                           new InputDecoration(icon: const Icon(Icons.search)),
                     ),
@@ -297,6 +298,7 @@ class _HomePageState extends State<HomePage> {
                 child: new Text('SEARCH'),
                 onPressed: () {
                   newsStoriesArray.clear();
+                  appBarTitle = "'" + _textFieldController.text + "'" + " results";
                   loadNewsStoriesFromSearch(_textFieldController.text);
                   Navigator.of(context).pop();
                 },
@@ -321,7 +323,7 @@ class _HomePageState extends State<HomePage> {
         yesterday +
         "&to=" +
         today +
-        "&language=en&sortBy=relevancy&apiKey=a30edf50cbbb48049945142f004c36c3";
+        "&language=en&sortBy=publishedAt&apiKey=a30edf50cbbb48049945142f004c36c3";
 
     http.Response response = await http.get(searchUrl);
 
@@ -424,5 +426,12 @@ class _HomePageState extends State<HomePage> {
     else
       favoriteNewsSources =
           new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
+  }
+
+  Widget showImage(String imageUrl) {
+    if (imageUrl != null && imageUrl != "")
+      return new Image.network(imageUrl);
+    else
+      return new SizedBox(width: 0.0, height: 0.0);
   }
 }
