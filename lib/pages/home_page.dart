@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   List favoriteNewsSources = [];
   String _selectedNewsSource =
       ""; // used to highlight currently selected news source listTile
+  
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
@@ -66,51 +67,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  buildListOfNewsSources() {
-    if (newsSourcesArray == null || newsSourcesArray.length == 0) {
-      return new Drawer(
-          child: new Center(child: new CircularProgressIndicator()));
-    } else {
-      return new Drawer(
-          child: new Scrollbar(
-              child: new ListView(
-                  children:
-                      new List.generate(newsSourcesArray.length, (int index) {
-        String newsSource = newsSourcesArray[index]['name'];
-        return new ListTile(
-            leading: new Container(
-                height: 75.0,
-                width: 100.0,
-                child: new InkWell(
-                    child: favoriteNewsSources.contains(newsSource)
-                        ? const Icon(Icons.favorite)
-                        : const Icon(Icons.favorite_border),
-                    onTap: () {
-                      setState(() {
-                        if (favoriteNewsSources.contains(newsSource))
-                          favoriteNewsSources.remove(newsSource);
-                        else
-                          favoriteNewsSources.add(newsSource);
-
-                        saveFavoriteNewsSourcesToDisk();
-                        sortNewsSourcesArray();
-                      });
-                    })),
-            title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
-            selected: _selectedNewsSource == newsSourcesArray[index]['name'],
-            onTap: () {
-              if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
-              Navigator.pop(context);
-              newsSourceId = newsSourcesArray[index]['id'];
-              appBarTitle = newsSourcesArray[index]['name'];
-              _selectedNewsSource = newsSourcesArray[index]['name'];
-              if (newsStoriesArray != null) newsStoriesArray.clear();
-              loadNewsStories();
-            });
-      }))));
-    }
-  }
-
   loadNewsStories() async {
     String dataUrl = "https://newsapi.org/v2/top-headlines?sources=" +
         newsSourceId +
@@ -139,6 +95,62 @@ class _HomePageState extends State<HomePage> {
   /*
    * UI methods begin
    */
+
+  @override
+  Widget build(BuildContext context) {
+    return new Theme(
+        data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+        child: new Scaffold(
+            key: _scaffoldKey,
+            appBar: buildAppBar(),
+            drawer: buildListOfNewsSources(),
+            body: buildListOfNewsStories()));
+  }
+
+  buildListOfNewsSources() {
+    if (newsSourcesArray == null || newsSourcesArray.length == 0) {
+      return new Drawer(
+          child: new Center(child: new CircularProgressIndicator()));
+    } else {
+      return new Drawer(
+          child: new Scrollbar(
+              child: new ListView(
+                  children:
+                  new List.generate(newsSourcesArray.length, (int index) {
+                    String newsSource = newsSourcesArray[index]['name'];
+                    return new ListTile(
+                        leading: new Container(
+                            height: 75.0,
+                            width: 100.0,
+                            child: new InkWell(
+                                child: favoriteNewsSources.contains(newsSource)
+                                    ? const Icon(Icons.favorite)
+                                    : const Icon(Icons.favorite_border),
+                                onTap: () {
+                                  setState(() {
+                                    if (favoriteNewsSources.contains(newsSource))
+                                      favoriteNewsSources.remove(newsSource);
+                                    else
+                                      favoriteNewsSources.add(newsSource);
+
+                                    saveFavoriteNewsSourcesToDisk();
+                                    sortNewsSourcesArray();
+                                  });
+                                })),
+                        title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
+                        selected: _selectedNewsSource == newsSourcesArray[index]['name'],
+                        onTap: () {
+                          if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
+                          Navigator.pop(context);
+                          newsSourceId = newsSourcesArray[index]['id'];
+                          appBarTitle = newsSourcesArray[index]['name'];
+                          _selectedNewsSource = newsSourcesArray[index]['name'];
+                          if (newsStoriesArray != null) newsStoriesArray.clear();
+                          loadNewsStories();
+                        });
+                  }))));
+    }
+  }
 
   buildListOfNewsStories() {
     if (newsStoriesArray == null || newsStoriesArray.length == 0) {
@@ -246,17 +258,6 @@ class _HomePageState extends State<HomePage> {
             )),
       );
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Theme(
-        data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
-        child: new Scaffold(
-            key: _scaffoldKey,
-            appBar: buildAppBar(),
-            drawer: buildListOfNewsSources(),
-            body: buildListOfNewsStories()));
   }
 
   buildAppBar() {
