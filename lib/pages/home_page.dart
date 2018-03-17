@@ -347,7 +347,7 @@ class _HomePageState extends State<HomePage> {
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
     if (keyword.length > 0)
-      appBarTitle = "'" + keyword + "'" + " results";
+      appBarTitle = "'" + keyword + "'";
     else
       appBarTitle = "News Reader";
 
