@@ -44,11 +44,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-//    getFavoriteNewsSourcesFromDisk()
-//        .then((asd) => loadNewsSources())
-//        .then((asd) => sortNewsSourcesArray())
-//        .then((asd) => getThemeSelectionFromDisk());
-
     initSharedPreferences()
         .then((asd) => getFavoriteNewsSourcesFromDisk())
         .then((asd) => loadNewsSources())
@@ -72,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   buildListOfNewsSources() {
-    if (newsSourcesArray.length == 0) {
+    if (newsSourcesArray == null || newsSourcesArray.length == 0) {
       return new Drawer(
           child: new Center(child: new CircularProgressIndicator()));
     } else {
@@ -109,7 +104,7 @@ class _HomePageState extends State<HomePage> {
               newsSourceId = newsSourcesArray[index]['id'];
               appBarTitle = newsSourcesArray[index]['name'];
               _selectedNewsSource = newsSourcesArray[index]['name'];
-              newsStoriesArray.clear();
+              if (newsStoriesArray != null) newsStoriesArray.clear();
               loadNewsStories();
             });
       }))));
@@ -349,13 +344,13 @@ class _HomePageState extends State<HomePage> {
   */
 
   beginNewsSearch(String keyword) {
-    newsStoriesArray.clear();
+    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     if (keyword.length > 0)
       appBarTitle = "'" + keyword + "'" + " results";
     else
       appBarTitle = "News Reader";
-    
+
     loadNewsStoriesFromSearch(keyword);
     Navigator.of(context).pop();
   }
