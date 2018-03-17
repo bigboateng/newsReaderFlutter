@@ -25,6 +25,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   final String USE_DARK_THEME = "USE_DARK_THEME";
+  static final String US_TOP_NEWS = "US Top News";
 
   bool useDarkTheme = false;
   String appBarTitle = "News Reader";
@@ -33,19 +34,20 @@ class _HomePageState extends State<HomePage> {
   List newsStoriesArray = [];
   List favoriteNewsSources = [];
   String _selectedNewsSource =
-      ""; // used to highlight currently selected news source listTile
-  
+      US_TOP_NEWS; // used to highlight currently selected news source listTile
+
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
-  SharedPreferences prefs = null;
+  SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
 
-    initSharedPreferences()
+    loadTopUsHeadLines()
+        .then((asd) => initSharedPreferences())
         .then((asd) => getFavoriteNewsSourcesFromDisk())
         .then((asd) => loadNewsSources())
         .then((asd) => sortNewsSourcesArray())
@@ -53,8 +55,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   /*
-   * HTTP methods begin
+   * HTTP METHODS BEGIN
    */
+
+  loadTopUsHeadLines() async {
+    String dataUrl =
+        "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
+    http.Response reponse = await http.get(dataUrl);
+
+    setState(() {
+      Map<String, dynamic> newsStories = JSON.decode(reponse.body);
+      newsStoriesArray = newsStories['articles'];
+    });
+  }
 
   loadNewsSources() async {
     String dataUrl =
@@ -93,7 +106,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   /*
-   * UI methods begin
+   * UI METHODS BEGIN
    */
 
   @override
@@ -115,62 +128,69 @@ class _HomePageState extends State<HomePage> {
       return new Drawer(
           child: new Scrollbar(
               child: new ListView(
-                  children:
-                  new List.generate(newsSourcesArray.length, (int index) {
-                    String newsSource = newsSourcesArray[index]['name'];
-                    return new ListTile(
-                        leading: new Container(
-                            height: 75.0,
-                            width: 100.0,
-                            child: new InkWell(
-                                child: favoriteNewsSources.contains(newsSource)
-                                    ? const Icon(Icons.favorite)
-                                    : const Icon(Icons.favorite_border),
-                                onTap: () {
-                                  setState(() {
-                                    if (favoriteNewsSources.contains(newsSource))
-                                      favoriteNewsSources.remove(newsSource);
-                                    else
-                                      favoriteNewsSources.add(newsSource);
+                  children: new List.generate(newsSourcesArray.length + 1,
+                      (int index) {
+        if (index == 0) {
+          // generate home listTile
+          return new ListTile(
+              leading: new Container(
+                  height: 75.0,
+                  width: 100.0,
+                  child: new InkWell(
+                    child: const Icon(Icons.home),
+                  )),
+              title:
+                  new Text(US_TOP_NEWS, style: new TextStyle(fontSize: 20.0)),
+              selected: _selectedNewsSource == US_TOP_NEWS,
+              onTap: () {
+                appBarTitle = US_TOP_NEWS;
+                if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
+                Navigator.pop(context);
+                _selectedNewsSource = US_TOP_NEWS;
+                if (newsStoriesArray != null) newsStoriesArray.clear();
+                loadTopUsHeadLines();
+              });
+        } else {
+          index -= 1;
+          String newsSource = newsSourcesArray[index]['name'];
+          return new ListTile(
+              leading: new Container(
+                  height: 75.0,
+                  width: 100.0,
+                  child: new InkWell(
+                      child: favoriteNewsSources.contains(newsSource)
+                          ? const Icon(Icons.favorite)
+                          : const Icon(Icons.favorite_border),
+                      onTap: () {
+                        setState(() {
+                          if (favoriteNewsSources.contains(newsSource))
+                            favoriteNewsSources.remove(newsSource);
+                          else
+                            favoriteNewsSources.add(newsSource);
 
-                                    saveFavoriteNewsSourcesToDisk();
-                                    sortNewsSourcesArray();
-                                  });
-                                })),
-                        title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
-                        selected: _selectedNewsSource == newsSourcesArray[index]['name'],
-                        onTap: () {
-                          if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
-                          Navigator.pop(context);
-                          newsSourceId = newsSourcesArray[index]['id'];
-                          appBarTitle = newsSourcesArray[index]['name'];
-                          _selectedNewsSource = newsSourcesArray[index]['name'];
-                          if (newsStoriesArray != null) newsStoriesArray.clear();
-                          loadNewsStories();
+                          saveFavoriteNewsSourcesToDisk();
+                          sortNewsSourcesArray();
                         });
-                  }))));
+                      })),
+              title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
+              selected: _selectedNewsSource == newsSourcesArray[index]['name'],
+              onTap: () {
+                if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
+                Navigator.pop(context);
+                newsSourceId = newsSourcesArray[index]['id'];
+                appBarTitle = newsSourcesArray[index]['name'];
+                _selectedNewsSource = newsSourcesArray[index]['name'];
+                if (newsStoriesArray != null) newsStoriesArray.clear();
+                loadNewsStories();
+              });
+        }
+      }))));
     }
   }
 
   buildListOfNewsStories() {
     if (newsStoriesArray == null || newsStoriesArray.length == 0) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return new Row(
-        children: <Widget>[
-          new Expanded(
-              child: new InkWell(
-                  onTap: () => _scaffoldKey.currentState.openDrawer(),
-                  child: new Center(
-                      child: new Material(
-                          elevation: 15.0,
-                          shape: new CircleBorder(),
-                          child: new CircleAvatar(
-                            radius: screenWidth / 3,
-                            child: new Icon(Icons.touch_app,
-                                size: screenWidth / 3),
-                          )))))
-        ],
-      );
+      return new Center(child: new CircularProgressIndicator());
     } else {
       return new Scrollbar(
         child: new RefreshIndicator(
@@ -205,7 +225,7 @@ class _HomePageState extends State<HomePage> {
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  showImage(imageUrl),
+                                  showImageIfAvailable(imageUrl),
                                   new Padding(
                                     padding: new EdgeInsets.fromLTRB(
                                         8.0, 8.0, 8.0, 8.0),
@@ -329,7 +349,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   /*
-  * HELPER FUNCTIONS BELOW...
+  * HELPER METHODS BEGIN
   */
 
   beginNewsSearch(String keyword) {
@@ -434,7 +454,7 @@ class _HomePageState extends State<HomePage> {
           new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
   }
 
-  Widget showImage(String imageUrl) {
+  Widget showImageIfAvailable(String imageUrl) {
     if (imageUrl != null && imageUrl != "")
       return new Image.network(imageUrl);
     else
