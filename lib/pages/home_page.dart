@@ -319,7 +319,8 @@ class _HomePageState extends State<HomePage> {
                       maxLengthEnforced: true,
                       decoration:
                           new InputDecoration(icon: const Icon(Icons.search)),
-                      onSubmitted: (asd) => beginNewsSearch(_textFieldController.text),
+                      onSubmitted: (asd) =>
+                          beginNewsSearch(_textFieldController.text),
                     ),
                   )
                 ],
@@ -349,8 +350,12 @@ class _HomePageState extends State<HomePage> {
 
   beginNewsSearch(String keyword) {
     newsStoriesArray.clear();
-    appBarTitle =
-        "'" + keyword + "'" + " results";
+
+    if (keyword.length > 0)
+      appBarTitle = "'" + keyword + "'" + " results";
+    else
+      appBarTitle = "News Reader";
+    
     loadNewsStoriesFromSearch(keyword);
     Navigator.of(context).pop();
   }
