@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   static final String US_TOP_NEWS = "US Top News";
 
   bool useDarkTheme = false;
-  String appBarTitle = "News Reader";
+  String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
   List newsSourcesArray = [];
   List newsStoriesArray = [];
@@ -287,6 +287,10 @@ class _HomePageState extends State<HomePage> {
         new IconButton(
             icon: const Icon(Icons.search),
             onPressed: () => showSearchDialog()),
+        new IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => print("Clicked add button"),
+        ),
         setIconForTheme(),
         new Switch(
           value: useDarkTheme,
@@ -366,9 +370,13 @@ class _HomePageState extends State<HomePage> {
 
   setIconForTheme() {
     if (useDarkTheme)
-      return new Icon(Icons.wb_sunny);
+      return new Padding(
+          padding: new EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
+          child: const Icon(Icons.wb_sunny));
     else
-      return new Icon(Icons.brightness_2);
+      return new Padding(
+          padding: new EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
+          child: const Icon(Icons.brightness_2));
   }
 
   String formatDateForUi(String dateTime) {
