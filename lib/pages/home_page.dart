@@ -124,20 +124,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsStoriesFromSearch(String keyWord) async {
-    // get today's date
-    DateTime dateTimeObj = new DateTime.now();
-    String today = formatDateForSearchQuery(dateTimeObj);
-
-    // get yesterday's date
-    dateTimeObj = dateTimeObj.add(new Duration(days: -1));
-    String yesterday = formatDateForSearchQuery(dateTimeObj);
-
     String searchUrl = "https://newsapi.org/v2/everything?q=" +
         keyWord +
-        "&from=" +
-        yesterday +
-        "&to=" +
-        today +
         "&language=en&sortBy=publishedAt&apiKey=a30edf50cbbb48049945142f004c36c3";
 
     http.Response response = await http.get(searchUrl);
