@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   buildListOfNewsStories() {
-    if (newsStoriesArray.length == 0) {
+    if (newsStoriesArray == null || newsStoriesArray.length == 0) {
       double screenWidth = MediaQuery.of(context).size.width;
       return new Row(
         children: <Widget>[
@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                     ? ""
                     : newsStoriesArray[index]['publishedAt'];
 
-                String formattedDate = formatDate(dateTime);
+                String formattedDate = formatDateForUi(dateTime);
 
                 return new Padding(
                     padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -262,6 +262,7 @@ class _HomePageState extends State<HomePage> {
   */
 
   Future<Null> showSearchDialog() async {
+    TextEditingController _textFieldController = new TextEditingController();
     double screenWidth = MediaQuery.of(context).size.width;
     return showDialog<Null>(
       context: context,
@@ -277,6 +278,7 @@ class _HomePageState extends State<HomePage> {
                     width: screenWidth * 0.8,
                     height: 50.0,
                     child: new TextField(
+                      controller: _textFieldController,
                       decoration:
                           new InputDecoration(icon: const Icon(Icons.search)),
                     ),
@@ -294,12 +296,39 @@ class _HomePageState extends State<HomePage> {
               new FlatButton(
                 child: new Text('SEARCH'),
                 onPressed: () {
+                  newsStoriesArray.clear();
+                  loadNewsStoriesFromSearch(_textFieldController.text);
                   Navigator.of(context).pop();
                 },
               ),
             ],
           )),
     );
+  }
+
+  loadNewsStoriesFromSearch(String keyWord) async {
+    // get today's date
+    DateTime dateTimeObj = new DateTime.now();
+    String today = formatDateForSearchQuery(dateTimeObj);
+
+    // get yesterday's date
+    dateTimeObj = dateTimeObj.add(new Duration(days: -1));
+    String yesterday = formatDateForSearchQuery(dateTimeObj);
+
+    String searchUrl = "https://newsapi.org/v2/everything?q=" +
+        keyWord +
+        "&from=" +
+        yesterday +
+        "&to=" +
+        today +
+        "&language=en&sortBy=relevancy&apiKey=a30edf50cbbb48049945142f004c36c3";
+
+    http.Response response = await http.get(searchUrl);
+
+    setState(() {
+      Map<String, dynamic> newsStories = JSON.decode(response.body);
+      newsStoriesArray = newsStories['articles'];
+    });
   }
 
   setIconForTheme() {
@@ -309,7 +338,7 @@ class _HomePageState extends State<HomePage> {
       return new Icon(Icons.brightness_2);
   }
 
-  String formatDate(String dateTime) {
+  String formatDateForUi(String dateTime) {
     String formattedDate = "";
 
     if (dateTime != "") {
@@ -320,6 +349,11 @@ class _HomePageState extends State<HomePage> {
       formattedDate = formatter.format(localDtObj);
     }
     return formattedDate;
+  }
+
+  String formatDateForSearchQuery(DateTime dateTimeObj) {
+    DateFormat formatter = new DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTimeObj);
   }
 
   _launchURL(String urlToOpen) async {
