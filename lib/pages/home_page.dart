@@ -240,6 +240,9 @@ class _HomePageState extends State<HomePage> {
     return new AppBar(
       title: new Text(appBarTitle),
       actions: <Widget>[
+        new IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => showSearchDialog()),
         setIconForTheme(),
         new Switch(
           value: useDarkTheme,
@@ -257,6 +260,47 @@ class _HomePageState extends State<HomePage> {
   /*
   * HELPER FUNCTIONS BELOW...
   */
+
+  Future<Null> showSearchDialog() async {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return showDialog<Null>(
+      context: context,
+      barrierDismissible: true,
+      child: new Theme(
+          data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+          child: new AlertDialog(
+            title: new Text('Search For News Articles...'),
+            content: new SingleChildScrollView(
+              child: new ListBody(
+                children: <Widget>[
+                  new SizedBox(
+                    width: screenWidth * 0.8,
+                    height: 50.0,
+                    child: new TextField(
+                      decoration:
+                          new InputDecoration(icon: const Icon(Icons.search)),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('CLOSE'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text('SEARCH'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          )),
+    );
+  }
 
   setIconForTheme() {
     if (useDarkTheme)
