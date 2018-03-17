@@ -316,8 +316,10 @@ class _HomePageState extends State<HomePage> {
                     child: new TextField(
                       controller: _textFieldController,
                       maxLength: 50,
+                      maxLengthEnforced: true,
                       decoration:
                           new InputDecoration(icon: const Icon(Icons.search)),
+                      onSubmitted: (asd) => beginNewsSearch(_textFieldController.text),
                     ),
                   )
                 ],
@@ -333,11 +335,7 @@ class _HomePageState extends State<HomePage> {
               new FlatButton(
                 child: new Text('SEARCH'),
                 onPressed: () {
-                  newsStoriesArray.clear();
-                  appBarTitle =
-                      "'" + _textFieldController.text + "'" + " results";
-                  loadNewsStoriesFromSearch(_textFieldController.text);
-                  Navigator.of(context).pop();
+                  beginNewsSearch(_textFieldController.text);
                 },
               ),
             ],
@@ -348,6 +346,14 @@ class _HomePageState extends State<HomePage> {
   /*
   * HELPER FUNCTIONS BELOW...
   */
+
+  beginNewsSearch(String keyword) {
+    newsStoriesArray.clear();
+    appBarTitle =
+        "'" + keyword + "'" + " results";
+    loadNewsStoriesFromSearch(keyword);
+    Navigator.of(context).pop();
+  }
 
   setIconForTheme() {
     if (useDarkTheme)
