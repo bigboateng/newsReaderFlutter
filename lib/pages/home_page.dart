@@ -605,9 +605,11 @@ class _HomePageState extends State<HomePage> {
       newsStoriesArray.clear();
       newsSourceId = customNewsSourceMap['id'];
       appBarTitle = customNewsSourceMap['name'];
+      _selectedNewsSource = customNewsSourceMap['name'];
+
+      sortNewsSourcesArray();
 
       setState(() {
-        sortNewsSourcesArray();
         loadNewsStoriesFromCustomSource();
       });
     }
