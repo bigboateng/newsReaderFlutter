@@ -23,9 +23,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
-  final String USE_DARK_THEME = "USE_DARK_THEME";
-  final String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
+  static const String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
+  static const String USE_DARK_THEME = "USE_DARK_THEME";
+  static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static const String US_TOP_NEWS = "US Top News";
 
   bool userDidSearch = false;
