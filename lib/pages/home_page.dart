@@ -432,6 +432,7 @@ class _HomePageState extends State<HomePage> {
                     height: 50.0,
                     child: new TextField(
                       controller: _seachTextFieldController,
+                      autofocus: true,
                       maxLength: 50,
                       maxLengthEnforced: true,
                       decoration:
@@ -479,6 +480,7 @@ class _HomePageState extends State<HomePage> {
                     height: 50.0,
                     child: new TextField(
                       autocorrect: false,
+                      autofocus: true,
                       controller: _textFieldController,
                       maxLength: 75,
                       maxLengthEnforced: true,
