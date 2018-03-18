@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   final String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static final String US_TOP_NEWS = "US Top News";
 
-  bool shouldShowNewsSource = false;
+  bool shouldShowNewsSourceName = false;
   bool useDarkTheme = false;
   String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
@@ -63,6 +63,8 @@ class _HomePageState extends State<HomePage> {
    */
 
   loadNewsStoriesFromCustomSource() async {
+    shouldShowNewsSourceName = false;
+
     String dataUrl = "https://newsapi.org/v2/everything?domains=" +
         newsSourceId +
         "&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -76,6 +78,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadTopUsHeadLines() async {
+    shouldShowNewsSourceName = false;
+
     String dataUrl =
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
     http.Response reponse = await http.get(dataUrl);
@@ -87,6 +91,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsSources() async {
+    shouldShowNewsSourceName = false;
+
     String dataUrl =
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
 
@@ -98,6 +104,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsStories() async {
+    shouldShowNewsSourceName = false;
+
     String dataUrl = "https://newsapi.org/v2/top-headlines?sources=" +
         newsSourceId +
         "&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -110,6 +118,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsStoriesFromSearch(String keyWord) async {
+    shouldShowNewsSourceName = true;
+
     String searchUrl = "https://newsapi.org/v2/everything?q=" +
         keyWord +
         "&language=en&sortBy=publishedAt&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -256,6 +266,10 @@ class _HomePageState extends State<HomePage> {
                 String dateTime = newsStoriesArray[index]['publishedAt'] == null
                     ? ""
                     : newsStoriesArray[index]['publishedAt'];
+                String newsSourceName =
+                    newsStoriesArray[index]['source']['name'] == null
+                        ? "No source"
+                        : newsStoriesArray[index]['source']['name'];
 
                 String formattedDate = formatDateForUi(dateTime);
 
@@ -278,6 +292,7 @@ class _HomePageState extends State<HomePage> {
                                             fontSize: 26.0,
                                             fontWeight: FontWeight.bold)),
                                   ),
+                                  showNewsSourceName(newsSourceName),
                                   new Padding(
                                     padding: new EdgeInsets.fromLTRB(
                                         16.0, 8.0, 16.0, 8.0),
@@ -447,6 +462,25 @@ class _HomePageState extends State<HomePage> {
   /*
   * HELPER METHODS BEGIN
   */
+
+  Widget showNewsSourceName(String newsSource) {
+    if (shouldShowNewsSourceName) {
+      return new Padding(
+          padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+          child: new Opacity(
+            opacity: 0.75,
+            child: new Text(newsSource,
+                style: new TextStyle(
+                  fontSize: 14.0,
+                  fontStyle: FontStyle.italic,
+                )),
+          ));
+    } else {
+      return new Padding(
+        padding: new EdgeInsets.all(0.0),
+      );
+    }
+  }
 
   void addCustomNewsSource(String customNewsSource) {
     if (!customNewsSources.contains(customNewsSource) &&
