@@ -13,10 +13,9 @@ final ThemeData _kGalleryDarkTheme = new ThemeData(
     accentColor: Colors.tealAccent);
 
 final ThemeData _kGalleryLightTheme = new ThemeData(
-  brightness: Brightness.light,
-  primarySwatch: Colors.blue,
-  accentColor: Colors.blue
-);
+    brightness: Brightness.light,
+    primarySwatch: Colors.blue,
+    accentColor: Colors.blue);
 
 class HomePage extends StatefulWidget {
   @override
@@ -169,8 +168,10 @@ class _HomePageState extends State<HomePage> {
           return new Row(
             children: <Widget>[
               new IconButton(
-                color: _selectedNewsSource == US_TOP_NEWS ? _kGalleryDarkTheme.accentColor : null,
-                icon: const Icon(Icons.home),
+                color: _selectedNewsSource == US_TOP_NEWS
+                    ? _kGalleryDarkTheme.accentColor
+                    : null,
+                icon: new Icon(Icons.home, color: getAccentColor()),
                 onPressed: () => null,
                 padding:
                     new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -180,9 +181,8 @@ class _HomePageState extends State<HomePage> {
                 child: new Text(US_TOP_NEWS,
                     style: new TextStyle(
                         fontSize: 20.0,
-                        color: _selectedNewsSource ==
-                                US_TOP_NEWS
-                            ? _kGalleryDarkTheme.accentColor
+                        color: _selectedNewsSource == US_TOP_NEWS
+                            ? getAccentColor()
                             : null)),
                 onTap: () {
                   appBarTitle = US_TOP_NEWS;
@@ -203,8 +203,8 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               new IconButton(
                 icon: favoriteNewsSources.contains(newsSource)
-                    ? const Icon(Icons.favorite)
-                    : const Icon(Icons.favorite_border),
+                    ? new Icon(Icons.favorite, color: _selectedNewsSource == newsSource ? getAccentColor() : null)
+                    : new Icon(Icons.favorite_border, color: _selectedNewsSource == newsSource ? getAccentColor() : null),
                 onPressed: () {
                   if (favoriteNewsSources.contains(newsSource))
                     favoriteNewsSources.remove(newsSource);
@@ -228,7 +228,7 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 20.0,
                         color: _selectedNewsSource ==
                                 newsSourcesArray[index]['name']
-                            ? _kGalleryDarkTheme.accentColor
+                            ? getAccentColor()
                             : null),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -252,7 +252,7 @@ class _HomePageState extends State<HomePage> {
               new Opacity(
                   opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
                   child: new IconButton(
-                    icon: const Icon(Icons.remove_circle_outline),
+                    icon: new Icon(Icons.remove_circle_outline, color: _selectedNewsSource == newsSource ? getAccentColor() : null),
                     onPressed: () {
                       if (customNewsSources.contains(newsSource)) {
                         customNewsSources.remove(newsSource);
@@ -267,59 +267,6 @@ class _HomePageState extends State<HomePage> {
                   )),
             ],
           );
-//          return new ListTile(
-//              leading: new IconButton(
-//                  icon: favoriteNewsSources.contains(newsSource)
-//                      ? const Icon(Icons.favorite)
-//                      : const Icon(Icons.favorite_border),
-//                  onPressed: () {
-//                    if (favoriteNewsSources.contains(newsSource))
-//                      favoriteNewsSources.remove(newsSource);
-//                    else
-//                      favoriteNewsSources.add(newsSource);
-//
-//                    saveFavoriteNewsSourcesToDisk();
-//
-//                    setState(() {
-//                      sortNewsSourcesArray();
-//                    });
-//                  }),
-//              trailing: new Opacity(
-//                  opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
-//                  child: new IconButton(
-//                    icon: const Icon(Icons.remove_circle_outline),
-//                    onPressed: () {
-//                      if (customNewsSources.contains(newsSource)) {
-//                        customNewsSources.remove(newsSource);
-//                        newsSourcesArray.removeAt(index);
-//                        prefs.setStringList(
-//                            CUSTOM_NEWS_SOURCES, customNewsSources);
-//                      }
-//                      setState(() {
-//                        sortNewsSourcesArray();
-//                      });
-//                    },
-//                  )),
-//              title: new Text(
-//                newsSource,
-//                style: new TextStyle(fontSize: 20.0),
-//                overflow: TextOverflow.ellipsis,
-//                maxLines: 1,
-//              ),
-//              selected: _selectedNewsSource == newsSourcesArray[index]['name'],
-//              onTap: () {
-//                if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
-//                Navigator.pop(context);
-//                newsSourceId = newsSourcesArray[index]['id'];
-//                appBarTitle = newsSourcesArray[index]['name'];
-//                _selectedNewsSource = newsSourcesArray[index]['name'];
-//                if (newsStoriesArray != null) newsStoriesArray.clear();
-//
-//                if (customNewsSources.contains(newsSource))
-//                  loadNewsStoriesFromCustomSource();
-//                else
-//                  loadNewsStories();
-//              });
         }
       }))));
     }
@@ -751,5 +698,12 @@ class _HomePageState extends State<HomePage> {
 
   initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
+  }
+
+  Color getAccentColor() {
+    if (useDarkTheme)
+      return _kGalleryDarkTheme.accentColor;
+    else
+      return _kGalleryLightTheme.accentColor;
   }
 }
