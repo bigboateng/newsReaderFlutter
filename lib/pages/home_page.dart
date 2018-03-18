@@ -26,9 +26,9 @@ class _HomePageState extends State<HomePage> {
   final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   final String USE_DARK_THEME = "USE_DARK_THEME";
   final String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
-  static final String US_TOP_NEWS = "US Top News";
+  static const String US_TOP_NEWS = "US Top News";
 
-  bool shouldShowNewsSourceName = false;
+  bool userDidSearch = false;
   bool useDarkTheme = false;
   String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
+  TextEditingController _seachTextFieldController = new TextEditingController();
   SharedPreferences prefs;
 
   @override
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
    */
 
   loadNewsStoriesFromCustomSource() async {
-    shouldShowNewsSourceName = false;
+    userDidSearch = false;
 
     String dataUrl = "https://newsapi.org/v2/everything?domains=" +
         newsSourceId +
@@ -79,7 +80,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadTopUsHeadLines() async {
-    shouldShowNewsSourceName = false;
+    userDidSearch = false;
 
     String dataUrl =
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -93,7 +94,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsSources() async {
-    shouldShowNewsSourceName = false;
+    userDidSearch = false;
 
     String dataUrl =
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -108,7 +109,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsStories() async {
-    shouldShowNewsSourceName = false;
+    userDidSearch = false;
 
     String dataUrl = "https://newsapi.org/v2/top-headlines?sources=" +
         newsSourceId +
@@ -122,7 +123,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   loadNewsStoriesFromSearch(String keyWord) async {
-    shouldShowNewsSourceName = true;
+    userDidSearch = true;
 
     String searchUrl = "https://newsapi.org/v2/everything?q=" +
         keyWord +
@@ -368,7 +369,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<Null> showSearchDialog() async {
-    TextEditingController _textFieldController = new TextEditingController();
     double screenWidth = MediaQuery.of(context).size.width;
     return showDialog<Null>(
       context: context,
@@ -384,13 +384,13 @@ class _HomePageState extends State<HomePage> {
                     width: screenWidth * 0.8,
                     height: 50.0,
                     child: new TextField(
-                      controller: _textFieldController,
+                      controller: _seachTextFieldController,
                       maxLength: 50,
                       maxLengthEnforced: true,
                       decoration:
                           new InputDecoration(icon: const Icon(Icons.search)),
                       onSubmitted: (asd) =>
-                          beginNewsSearch(_textFieldController.text),
+                          beginNewsSearch(_seachTextFieldController.text),
                     ),
                   )
                 ],
@@ -406,7 +406,7 @@ class _HomePageState extends State<HomePage> {
               new FlatButton(
                 child: new Text('SEARCH'),
                 onPressed: () {
-                  beginNewsSearch(_textFieldController.text);
+                  beginNewsSearch(_seachTextFieldController.text);
                 },
               ),
             ],
@@ -468,7 +468,7 @@ class _HomePageState extends State<HomePage> {
   */
 
   Widget showNewsSourceName(String newsSource) {
-    if (shouldShowNewsSourceName) {
+    if (userDidSearch) {
       return new Padding(
           padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
           child: new Opacity(
@@ -581,7 +581,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future refreshNewsStories() async {
-    loadNewsStories();
+    if (userDidSearch) // refresh a search result
+      loadNewsStoriesFromSearch(_seachTextFieldController.text);
+    else if (customNewsSources
+        .contains(appBarTitle)) // refresh news from a custom news source
+      loadNewsStoriesFromCustomSource();
+    else if (appBarTitle == US_TOP_NEWS) // refresh the homepage news
+      loadTopUsHeadLines();
+    else // refresh news from the selected standard source
+      loadNewsStories();
 
     // Show refresh indicator for 3 seconds
     final Completer<Null> completer = new Completer<Null>();
