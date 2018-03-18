@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
    * HTTP METHODS BEGIN
    */
 
-  loadNewsFromCustomSource() async {
+  loadNewsStoriesFromCustomSource() async {
     String dataUrl = "https://newsapi.org/v2/everything?domains=" +
         newsSourceId +
         "&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -221,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                 if (newsStoriesArray != null) newsStoriesArray.clear();
 
                 if (customNewsSources.contains(newsSource))
-                  loadNewsFromCustomSource();
+                  loadNewsStoriesFromCustomSource();
                 else
                   loadNewsStories();
               });
@@ -417,8 +417,8 @@ class _HomePageState extends State<HomePage> {
                       maxLengthEnforced: true,
                       decoration: new InputDecoration(
                           icon: const Icon(Icons.search), hintText: "cnn.com"),
-//                      onSubmitted: (asd) =>
-//                          beginNewsSearch(_textFieldController.text),
+                      onSubmitted: (asd) =>
+                          addCustomNewsSource(_textFieldController.text),
                     ),
                   )
                 ],
@@ -435,36 +435,44 @@ class _HomePageState extends State<HomePage> {
                 child: new Text('ADD'),
                 onPressed: () {
                   String customNewsSource = _textFieldController.text;
-
-                  if (!customNewsSources.contains(customNewsSource) &&
-                      customNewsSource != "") {
-                    customNewsSources.add(customNewsSource);
-
-                    // save list to disk
-                    prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
-
-                    // Build map to add to newsSourcesArray
-                    Map<String, String> customNewsSourceMap = {
-                      'name': customNewsSource,
-                      'id': customNewsSource.toLowerCase()
-                    };
-
-                    newsSourcesArray.add(customNewsSourceMap);
-
-                    setState(() => sortNewsSourcesArray());
-                    Navigator.of(context).pop();
-
-                    // TODO: Show news stories from newly added custom news source
-                  }
+                  addCustomNewsSource(customNewsSource);
                 },
               ),
             ],
           )),
     );
   }
+
   /*
   * HELPER METHODS BEGIN
   */
+
+  void addCustomNewsSource(String customNewsSource) {
+    if (!customNewsSources.contains(customNewsSource) &&
+        customNewsSource != "") {
+      customNewsSources.add(customNewsSource);
+
+      // save list to disk
+      prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
+
+      // Build map to add to newsSourcesArray
+      Map<String, String> customNewsSourceMap = {
+        'name': customNewsSource,
+        'id': customNewsSource.toLowerCase()
+      };
+
+      Navigator.of(context).pop();
+      newsSourcesArray.add(customNewsSourceMap);
+      newsStoriesArray.clear();
+      newsSourceId = customNewsSourceMap['id'];
+      appBarTitle = customNewsSourceMap['name'];
+
+      setState(() {
+        sortNewsSourcesArray();
+        loadNewsStoriesFromCustomSource();
+      });
+    }
+  }
 
   beginNewsSearch(String keyword) {
     if (newsStoriesArray != null) newsStoriesArray.clear();
