@@ -8,13 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share/share.dart' as sharing;
 
 final ThemeData _kGalleryDarkTheme = new ThemeData(
-  brightness: Brightness.dark,
-  primarySwatch: Colors.blue,
-);
+    brightness: Brightness.dark,
+    primarySwatch: Colors.blue,
+    accentColor: Colors.tealAccent);
 
 final ThemeData _kGalleryLightTheme = new ThemeData(
   brightness: Brightness.light,
   primarySwatch: Colors.blue,
+  accentColor: Colors.blue
 );
 
 class HomePage extends StatefulWidget {
@@ -54,6 +55,7 @@ class _HomePageState extends State<HomePage> {
     loadTopUsHeadLines()
         .then((asd) => initSharedPreferences())
         .then((asd) => getFavoriteNewsSourcesFromDisk())
+        .then((asd) => loadNewsSources())
         .then((asd) => getCustomNewsSourcesFromDisk())
         .then((asd) => sortNewsSourcesArray())
         .then((asd) => getThemeSelectionFromDisk());
@@ -164,83 +166,160 @@ class _HomePageState extends State<HomePage> {
                       (int index) {
         if (index == 0) {
           // generate home listTile
-          return new ListTile(
-              leading: new Container(
-                  height: 75.0,
-                  width: 100.0,
+          return new Row(
+            children: <Widget>[
+              new IconButton(
+                color: _selectedNewsSource == US_TOP_NEWS ? _kGalleryDarkTheme.accentColor : null,
+                icon: const Icon(Icons.home),
+                onPressed: () => null,
+                padding:
+                    new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              ),
+              new Expanded(
                   child: new InkWell(
-                    child: const Icon(Icons.home),
-                  )),
-              title:
-                  new Text(US_TOP_NEWS, style: new TextStyle(fontSize: 20.0)),
-              selected: _selectedNewsSource == US_TOP_NEWS,
-              onTap: () {
-                appBarTitle = US_TOP_NEWS;
-                if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
-                Navigator.pop(context);
-                _selectedNewsSource = US_TOP_NEWS;
-                if (newsStoriesArray != null) newsStoriesArray.clear();
-                loadTopUsHeadLines();
-              });
+                child: new Text(US_TOP_NEWS,
+                    style: new TextStyle(
+                        fontSize: 20.0,
+                        color: _selectedNewsSource ==
+                                US_TOP_NEWS
+                            ? _kGalleryDarkTheme.accentColor
+                            : null)),
+                onTap: () {
+                  appBarTitle = US_TOP_NEWS;
+                  if (_scrollController.hasClients)
+                    _scrollController.jumpTo(0.0);
+                  Navigator.pop(context);
+                  _selectedNewsSource = US_TOP_NEWS;
+                  if (newsStoriesArray != null) newsStoriesArray.clear();
+                  loadTopUsHeadLines();
+                },
+              ))
+            ],
+          );
         } else {
           index -= 1;
           String newsSource = newsSourcesArray[index]['name'];
-          return new ListTile(
-              leading: new Container(
-                  height: 65.0,
-                  width: 100.0,
-                  child: new InkWell(
-                      child: favoriteNewsSources.contains(newsSource)
-                          ? const Icon(Icons.favorite)
-                          : const Icon(Icons.favorite_border),
-                      onTap: () {
-                        if (favoriteNewsSources.contains(newsSource))
-                          favoriteNewsSources.remove(newsSource);
-                        else
-                          favoriteNewsSources.add(newsSource);
+          return new Row(
+            children: <Widget>[
+              new IconButton(
+                icon: favoriteNewsSources.contains(newsSource)
+                    ? const Icon(Icons.favorite)
+                    : const Icon(Icons.favorite_border),
+                onPressed: () {
+                  if (favoriteNewsSources.contains(newsSource))
+                    favoriteNewsSources.remove(newsSource);
+                  else
+                    favoriteNewsSources.add(newsSource);
 
-                        saveFavoriteNewsSourcesToDisk();
+                  saveFavoriteNewsSourcesToDisk();
 
-                        setState(() {
-                          sortNewsSourcesArray();
-                        });
-                      })),
-              trailing: new Container(
-                  height: 65.0,
-                  width: 50.0,
-                  child: new InkWell(
-                      child: new Opacity(
-                          opacity: customNewsSources.contains(newsSource)
-                              ? 1.0
-                              : 0.0,
-                          child: new InkWell(
-                              child: const Icon(Icons.remove_circle_outline),
-                              onTap: () {
-                                if (customNewsSources.contains(newsSource)) {
-                                  customNewsSources.remove(newsSource);
-                                  newsSourcesArray.removeAt(index);
-                                  prefs.setStringList(
-                                      CUSTOM_NEWS_SOURCES, customNewsSources);
-                                }
-                                setState(() {
-                                  sortNewsSourcesArray();
-                                });
-                              })))),
-              title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
-              selected: _selectedNewsSource == newsSourcesArray[index]['name'],
-              onTap: () {
-                if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
-                Navigator.pop(context);
-                newsSourceId = newsSourcesArray[index]['id'];
-                appBarTitle = newsSourcesArray[index]['name'];
-                _selectedNewsSource = newsSourcesArray[index]['name'];
-                if (newsStoriesArray != null) newsStoriesArray.clear();
+                  setState(() {
+                    sortNewsSourcesArray();
+                  });
+                },
+                padding:
+                    new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              ),
+              new Expanded(
+                child: new InkWell(
+                  child: new Text(
+                    newsSource,
+                    style: new TextStyle(
+                        fontSize: 20.0,
+                        color: _selectedNewsSource ==
+                                newsSourcesArray[index]['name']
+                            ? _kGalleryDarkTheme.accentColor
+                            : null),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  onTap: () {
+                    if (_scrollController.hasClients)
+                      _scrollController.jumpTo(0.0);
+                    Navigator.pop(context);
+                    newsSourceId = newsSourcesArray[index]['id'];
+                    appBarTitle = newsSourcesArray[index]['name'];
+                    _selectedNewsSource = newsSourcesArray[index]['name'];
+                    if (newsStoriesArray != null) newsStoriesArray.clear();
 
-                if (customNewsSources.contains(newsSource))
-                  loadNewsStoriesFromCustomSource();
-                else
-                  loadNewsStories();
-              });
+                    if (customNewsSources.contains(newsSource))
+                      loadNewsStoriesFromCustomSource();
+                    else
+                      loadNewsStories();
+                  },
+                ),
+              ),
+              new Opacity(
+                  opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
+                  child: new IconButton(
+                    icon: const Icon(Icons.remove_circle_outline),
+                    onPressed: () {
+                      if (customNewsSources.contains(newsSource)) {
+                        customNewsSources.remove(newsSource);
+                        newsSourcesArray.removeAt(index);
+                        prefs.setStringList(
+                            CUSTOM_NEWS_SOURCES, customNewsSources);
+                      }
+                      setState(() {
+                        sortNewsSourcesArray();
+                      });
+                    },
+                  )),
+            ],
+          );
+//          return new ListTile(
+//              leading: new IconButton(
+//                  icon: favoriteNewsSources.contains(newsSource)
+//                      ? const Icon(Icons.favorite)
+//                      : const Icon(Icons.favorite_border),
+//                  onPressed: () {
+//                    if (favoriteNewsSources.contains(newsSource))
+//                      favoriteNewsSources.remove(newsSource);
+//                    else
+//                      favoriteNewsSources.add(newsSource);
+//
+//                    saveFavoriteNewsSourcesToDisk();
+//
+//                    setState(() {
+//                      sortNewsSourcesArray();
+//                    });
+//                  }),
+//              trailing: new Opacity(
+//                  opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
+//                  child: new IconButton(
+//                    icon: const Icon(Icons.remove_circle_outline),
+//                    onPressed: () {
+//                      if (customNewsSources.contains(newsSource)) {
+//                        customNewsSources.remove(newsSource);
+//                        newsSourcesArray.removeAt(index);
+//                        prefs.setStringList(
+//                            CUSTOM_NEWS_SOURCES, customNewsSources);
+//                      }
+//                      setState(() {
+//                        sortNewsSourcesArray();
+//                      });
+//                    },
+//                  )),
+//              title: new Text(
+//                newsSource,
+//                style: new TextStyle(fontSize: 20.0),
+//                overflow: TextOverflow.ellipsis,
+//                maxLines: 1,
+//              ),
+//              selected: _selectedNewsSource == newsSourcesArray[index]['name'],
+//              onTap: () {
+//                if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
+//                Navigator.pop(context);
+//                newsSourceId = newsSourcesArray[index]['id'];
+//                appBarTitle = newsSourcesArray[index]['name'];
+//                _selectedNewsSource = newsSourcesArray[index]['name'];
+//                if (newsStoriesArray != null) newsStoriesArray.clear();
+//
+//                if (customNewsSources.contains(newsSource))
+//                  loadNewsStoriesFromCustomSource();
+//                else
+//                  loadNewsStories();
+//              });
         }
       }))));
     }
@@ -269,6 +348,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ));
     } else {
+      shouldShowHelpText = false;
+
       return new Scrollbar(
         child: new RefreshIndicator(
             onRefresh: () => refreshNewsStories(),
