@@ -60,6 +60,17 @@ class _HomePageState extends State<HomePage> {
    * HTTP METHODS BEGIN
    */
 
+  loadNewsFromCustomSource() async {
+    String dataUrl = "https://newsapi.org/v2/everything?domains=" + _selectedNewsSource.toLowerCase() + "&apiKey=a30edf50cbbb48049945142f004c36c3";
+
+    http.Response reponse = await http.get(dataUrl);
+
+    setState(() {
+      Map<String, dynamic> newsStories = JSON.decode(reponse.body);
+      newsStoriesArray = newsStories['articles'];
+    });
+  }
+
   loadTopUsHeadLines() async {
     String dataUrl =
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -157,7 +168,7 @@ class _HomePageState extends State<HomePage> {
           String newsSource = newsSourcesArray[index]['name'];
           return new ListTile(
               leading: new Container(
-                  height: 75.0,
+                  height: 65.0,
                   width: 100.0,
                   child: new InkWell(
                       child: favoriteNewsSources.contains(newsSource)
@@ -170,13 +181,13 @@ class _HomePageState extends State<HomePage> {
                           favoriteNewsSources.add(newsSource);
 
                         saveFavoriteNewsSourcesToDisk();
-                        
+
                         setState(() {
                           sortNewsSourcesArray();
                         });
                       })),
               trailing: new Container(
-                  height: 75.0,
+                  height: 65.0,
                   width: 50.0,
                   child: new InkWell(
                       child: new Opacity(
@@ -205,7 +216,11 @@ class _HomePageState extends State<HomePage> {
                 appBarTitle = newsSourcesArray[index]['name'];
                 _selectedNewsSource = newsSourcesArray[index]['name'];
                 if (newsStoriesArray != null) newsStoriesArray.clear();
-                loadNewsStories();
+
+                if (customNewsSources.contains(newsSource))
+                  loadNewsFromCustomSource();
+                else
+                  loadNewsStories();
               });
         }
       }))));
@@ -553,6 +568,8 @@ class _HomePageState extends State<HomePage> {
       favoriteNewsSources =
           new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
   }
+
+  
 
   Widget showImageIfAvailable(String imageUrl) {
     if (imageUrl != null && imageUrl != "")
