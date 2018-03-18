@@ -25,6 +25,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   final String USE_DARK_THEME = "USE_DARK_THEME";
+  final String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static final String US_TOP_NEWS = "US Top News";
 
   bool useDarkTheme = false;
@@ -33,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   List newsSourcesArray = [];
   List newsStoriesArray = [];
   List favoriteNewsSources = [];
+  List customNewsSources = [];
   String _selectedNewsSource =
       US_TOP_NEWS; // used to highlight currently selected news source listTile
 
@@ -162,16 +164,38 @@ class _HomePageState extends State<HomePage> {
                           ? const Icon(Icons.favorite)
                           : const Icon(Icons.favorite_border),
                       onTap: () {
-                        setState(() {
-                          if (favoriteNewsSources.contains(newsSource))
-                            favoriteNewsSources.remove(newsSource);
-                          else
-                            favoriteNewsSources.add(newsSource);
+                        if (favoriteNewsSources.contains(newsSource))
+                          favoriteNewsSources.remove(newsSource);
+                        else
+                          favoriteNewsSources.add(newsSource);
 
-                          saveFavoriteNewsSourcesToDisk();
+                        saveFavoriteNewsSourcesToDisk();
+                        
+                        setState(() {
                           sortNewsSourcesArray();
                         });
                       })),
+              trailing: new Container(
+                  height: 75.0,
+                  width: 50.0,
+                  child: new InkWell(
+                      child: new Opacity(
+                          opacity: customNewsSources.contains(newsSource)
+                              ? 1.0
+                              : 0.0,
+                          child: new InkWell(
+                              child: const Icon(Icons.remove_circle_outline),
+                              onTap: () {
+                                if (customNewsSources.contains(newsSource)) {
+                                  customNewsSources.remove(newsSource);
+                                  newsSourcesArray.removeAt(index);
+                                  prefs.setStringList(
+                                      CUSTOM_NEWS_SOURCES, customNewsSources);
+                                }
+                                setState(() {
+                                  sortNewsSourcesArray();
+                                });
+                              })))),
               title: new Text(newsSource, style: new TextStyle(fontSize: 20.0)),
               selected: _selectedNewsSource == newsSourcesArray[index]['name'],
               onTap: () {
@@ -289,7 +313,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => showSearchDialog()),
         new IconButton(
           icon: const Icon(Icons.add),
-          onPressed: () => print("Clicked add button"),
+          onPressed: () => showAddCustomNewsSourcesDialog(),
         ),
         setIconForTheme(),
         new Switch(
@@ -352,6 +376,74 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<Null> showAddCustomNewsSourcesDialog() async {
+    TextEditingController _textFieldController = new TextEditingController();
+    double screenWidth = MediaQuery.of(context).size.width;
+    return showDialog<Null>(
+      context: context,
+      barrierDismissible: true,
+      child: new Theme(
+          data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+          child: new AlertDialog(
+            title: new Text('Add custom news sources...'),
+            content: new SingleChildScrollView(
+              child: new ListBody(
+                children: <Widget>[
+                  new SizedBox(
+                    width: screenWidth * 0.8,
+                    height: 50.0,
+                    child: new TextField(
+                      autocorrect: false,
+                      controller: _textFieldController,
+                      maxLength: 75,
+                      maxLengthEnforced: true,
+                      decoration: new InputDecoration(
+                          icon: const Icon(Icons.search), hintText: "cnn.com"),
+//                      onSubmitted: (asd) =>
+//                          beginNewsSearch(_textFieldController.text),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('CLOSE'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text('ADD'),
+                onPressed: () {
+                  String customNewsSource = _textFieldController.text;
+
+                  if (!customNewsSources.contains(customNewsSource) &&
+                      customNewsSource != "") {
+                    customNewsSources.add(customNewsSource);
+
+                    // save list to disk
+                    prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
+
+                    // Build map to add to newsSourcesArray
+                    Map<String, String> customNewsSourceMap = {
+                      'name': customNewsSource,
+                      'id': customNewsSource
+                    };
+
+                    newsSourcesArray.add(customNewsSourceMap);
+
+                    setState(() => sortNewsSourcesArray());
+                    Navigator.of(context).pop();
+
+                    // Show news stories from newly added custom news source
+                  }
+                },
+              ),
+            ],
+          )),
+    );
+  }
   /*
   * HELPER METHODS BEGIN
   */
