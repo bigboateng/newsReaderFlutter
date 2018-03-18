@@ -71,8 +71,9 @@ class _HomePageState extends State<HomePage> {
 
     http.Response reponse = await http.get(dataUrl);
 
+    Map<String, dynamic> newsStories = JSON.decode(reponse.body);
+
     setState(() {
-      Map<String, dynamic> newsStories = JSON.decode(reponse.body);
       newsStoriesArray = newsStories['articles'];
     });
   }
@@ -84,8 +85,9 @@ class _HomePageState extends State<HomePage> {
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
     http.Response reponse = await http.get(dataUrl);
 
+    Map<String, dynamic> newsStories = JSON.decode(reponse.body);
+
     setState(() {
-      Map<String, dynamic> newsStories = JSON.decode(reponse.body);
       newsStoriesArray = newsStories['articles'];
     });
   }
@@ -97,8 +99,10 @@ class _HomePageState extends State<HomePage> {
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
 
     http.Response response = await http.get(dataUrl);
+
+    Map<String, dynamic> newsSources = JSON.decode(response.body);
+
     setState(() {
-      Map<String, dynamic> newsSources = JSON.decode(response.body);
       newsSourcesArray = newsSources['sources'];
     });
   }
@@ -536,7 +540,7 @@ class _HomePageState extends State<HomePage> {
       String newDateTime = dateTime.substring(0, 19) + "Z";
       DateTime dtObj = DateTime.parse(newDateTime);
       DateTime localDtObj = dtObj.toLocal();
-      DateFormat formatter = new DateFormat("MMMM d. yy h:mm a");
+      DateFormat formatter = new DateFormat("MMMM d. yyyy h:mm a");
       formattedDate = formatter.format(localDtObj);
     }
     return formattedDate;
