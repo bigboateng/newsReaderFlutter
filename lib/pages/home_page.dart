@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
         .then((asd) => initSharedPreferences())
         .then((asd) => getFavoriteNewsSourcesFromDisk())
         .then((asd) => loadNewsSources())
+        .then((asd) => getCustomNewsSourcesFromDisk())
         .then((asd) => sortNewsSourcesArray())
         .then((asd) => getThemeSelectionFromDisk());
   }
@@ -61,7 +62,9 @@ class _HomePageState extends State<HomePage> {
    */
 
   loadNewsFromCustomSource() async {
-    String dataUrl = "https://newsapi.org/v2/everything?domains=" + _selectedNewsSource.toLowerCase() + "&apiKey=a30edf50cbbb48049945142f004c36c3";
+    String dataUrl = "https://newsapi.org/v2/everything?domains=" +
+        newsSourceId +
+        "&apiKey=a30edf50cbbb48049945142f004c36c3";
 
     http.Response reponse = await http.get(dataUrl);
 
@@ -443,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                     // Build map to add to newsSourcesArray
                     Map<String, String> customNewsSourceMap = {
                       'name': customNewsSource,
-                      'id': customNewsSource
+                      'id': customNewsSource.toLowerCase()
                     };
 
                     newsSourcesArray.add(customNewsSourceMap);
@@ -451,7 +454,7 @@ class _HomePageState extends State<HomePage> {
                     setState(() => sortNewsSourcesArray());
                     Navigator.of(context).pop();
 
-                    // Show news stories from newly added custom news source
+                    // TODO: Show news stories from newly added custom news source
                   }
                 },
               ),
@@ -569,7 +572,21 @@ class _HomePageState extends State<HomePage> {
           new List<String>.from(prefs.getStringList(FAVORITE_NEWS_SOURCES));
   }
 
-  
+  getCustomNewsSourcesFromDisk() async {
+    if (prefs.getStringList(CUSTOM_NEWS_SOURCES) == null)
+      customNewsSources = new List();
+    else
+      customNewsSources =
+          new List<String>.from(prefs.getStringList(CUSTOM_NEWS_SOURCES));
+
+    for (String customNewsSource in customNewsSources) {
+      Map<String, String> customNewsSourceMap = {
+        'name': customNewsSource,
+        'id': customNewsSource.toLowerCase()
+      };
+      newsSourcesArray.add(customNewsSourceMap);
+    }
+  }
 
   Widget showImageIfAvailable(String imageUrl) {
     if (imageUrl != null && imageUrl != "")
