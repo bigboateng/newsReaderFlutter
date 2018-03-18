@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static const String US_TOP_NEWS = "US Top News";
 
+  bool shouldShowHelpText = false;
   bool userDidSearch = false;
   bool useDarkTheme = false;
   String appBarTitle = US_TOP_NEWS;
@@ -53,7 +54,6 @@ class _HomePageState extends State<HomePage> {
     loadTopUsHeadLines()
         .then((asd) => initSharedPreferences())
         .then((asd) => getFavoriteNewsSourcesFromDisk())
-        .then((asd) => loadNewsSources())
         .then((asd) => getCustomNewsSourcesFromDisk())
         .then((asd) => sortNewsSourcesArray())
         .then((asd) => getThemeSelectionFromDisk());
@@ -248,7 +248,26 @@ class _HomePageState extends State<HomePage> {
 
   buildListOfNewsStories() {
     if (newsStoriesArray == null || newsStoriesArray.length == 0) {
-      return new Center(child: new CircularProgressIndicator());
+      new Timer(new Duration(seconds: 6),
+          () => setState(() => shouldShowHelpText = true));
+      Opacity textOpacity = new Opacity(
+          opacity: shouldShowHelpText ? 1.0 : 0.0,
+          child: new Padding(
+            padding: new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+            child: new Text(
+                "No data received from server.\nPlease check your internet connection.\n\nIf you are seeing this screen after adding a custom news source, then your custom news source is invalid.",
+                style: new TextStyle(fontSize: 26.0),
+                textAlign: TextAlign.center),
+          ));
+
+      return new Center(
+          child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new CircularProgressIndicator(),
+          textOpacity,
+        ],
+      ));
     } else {
       return new Scrollbar(
         child: new RefreshIndicator(
