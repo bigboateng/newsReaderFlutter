@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   final String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static final String US_TOP_NEWS = "US Top News";
 
+  bool shouldShowNewsSource = false;
   bool useDarkTheme = false;
   String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
@@ -475,15 +476,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   beginNewsSearch(String keyword) {
-    if (newsStoriesArray != null) newsStoriesArray.clear();
-
-    if (keyword.length > 0)
+    if (keyword.length > 0) {
+      if (newsStoriesArray != null) newsStoriesArray.clear();
       appBarTitle = "'" + keyword + "'";
-    else
-      appBarTitle = "News Reader";
-
-    loadNewsStoriesFromSearch(keyword);
-    Navigator.of(context).pop();
+      loadNewsStoriesFromSearch(keyword);
+      Navigator.of(context).pop();
+    }
   }
 
   setIconForTheme() {
@@ -504,7 +502,7 @@ class _HomePageState extends State<HomePage> {
       String newDateTime = dateTime.substring(0, 19) + "Z";
       DateTime dtObj = DateTime.parse(newDateTime);
       DateTime localDtObj = dtObj.toLocal();
-      DateFormat formatter = new DateFormat('MMMM d. yyyy h:mm a');
+      DateFormat formatter = new DateFormat("MMMM d. yy h:mm a");
       formattedDate = formatter.format(localDtObj);
     }
     return formattedDate;
