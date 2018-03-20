@@ -52,7 +52,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addObserver(this); // used for detecting app lifecycle
+    WidgetsBinding.instance
+        .addObserver(this); // used for detecting app lifecycle
 
     loadTopUsHeadLines()
         .then((asd) => initSharedPreferences())
@@ -74,8 +75,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       _notification = state;
 
-      if (AppLifecycleState.resumed == state)
-        refreshNewsStories();
+      if (AppLifecycleState.resumed == state) refreshNewsStories();
     });
   }
 
@@ -190,7 +190,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 color: _selectedNewsSource == US_TOP_NEWS
                     ? _kGalleryDarkTheme.accentColor
                     : null,
-                icon: new Icon(Icons.home, color:_selectedNewsSource == US_TOP_NEWS ? getAccentColor() : null),
+                icon: new Icon(Icons.home,
+                    color: _selectedNewsSource == US_TOP_NEWS
+                        ? getAccentColor()
+                        : null),
                 onPressed: () => null,
                 padding:
                     new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -222,8 +225,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             children: <Widget>[
               new IconButton(
                 icon: favoriteNewsSources.contains(newsSource)
-                    ? new Icon(Icons.star, color: _selectedNewsSource == newsSource ? getAccentColor() : null)
-                    : new Icon(Icons.star_border, color: _selectedNewsSource == newsSource ? getAccentColor() : null),
+                    ? new Icon(Icons.star,
+                        color: _selectedNewsSource == newsSource
+                            ? getAccentColor()
+                            : null)
+                    : new Icon(Icons.star_border,
+                        color: _selectedNewsSource == newsSource
+                            ? getAccentColor()
+                            : null),
                 onPressed: () {
                   if (favoriteNewsSources.contains(newsSource))
                     favoriteNewsSources.remove(newsSource);
@@ -271,7 +280,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               new Opacity(
                   opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
                   child: new IconButton(
-                    icon: new Icon(Icons.remove_circle_outline, color: _selectedNewsSource == newsSource ? getAccentColor() : null),
+                    icon: new Icon(Icons.remove_circle_outline,
+                        color: _selectedNewsSource == newsSource
+                            ? getAccentColor()
+                            : null),
                     onPressed: () {
                       if (customNewsSources.contains(newsSource)) {
                         customNewsSources.remove(newsSource);
@@ -531,6 +543,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+
   /*
   * HELPER METHODS BEGIN
   */
@@ -653,10 +666,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future refreshNewsStories() async {
     if (userDidSearch) // refresh a search result
       loadNewsStoriesFromSearch(_seachTextFieldController.text);
-    else if (customNewsSources
-        .contains(_selectedNewsSource)) // refresh news from a custom news source
+    else if (customNewsSources.contains(
+        _selectedNewsSource)) // refresh news from a custom news source
       loadNewsStoriesFromCustomSource();
-    else if (_selectedNewsSource == US_TOP_NEWS)  // refresh the homepage news
+    else if (_selectedNewsSource == US_TOP_NEWS) // refresh the homepage news
       loadTopUsHeadLines();
     else // refresh news from the selected standard source
       loadNewsStories();
