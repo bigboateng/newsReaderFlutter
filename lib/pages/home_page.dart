@@ -654,9 +654,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (userDidSearch) // refresh a search result
       loadNewsStoriesFromSearch(_seachTextFieldController.text);
     else if (customNewsSources
-        .contains(appBarTitle)) // refresh news from a custom news source
+        .contains(_selectedNewsSource)) // refresh news from a custom news source
       loadNewsStoriesFromCustomSource();
-    else if (appBarTitle == US_TOP_NEWS) // refresh the homepage news
+    else if (_selectedNewsSource == US_TOP_NEWS)  // refresh the homepage news
       loadTopUsHeadLines();
     else // refresh news from the selected standard source
       loadNewsStories();
