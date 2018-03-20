@@ -517,7 +517,7 @@ class _HomePageState extends State<HomePage> {
   */
 
   Widget showNewsSourceName(String newsSource) {
-    if (userDidSearch) {
+    if (userDidSearch || _selectedNewsSource == US_TOP_NEWS) {
       return new Padding(
           padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
           child: new Opacity(
