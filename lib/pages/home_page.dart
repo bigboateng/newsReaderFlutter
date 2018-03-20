@@ -22,7 +22,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => new _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   static const String USE_DARK_THEME = "USE_DARK_THEME";
   static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
@@ -39,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   List customNewsSources = [];
   String _selectedNewsSource =
       US_TOP_NEWS; // used to highlight currently selected news source listTile
+  AppLifecycleState _notification;
 
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
@@ -51,6 +52,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addObserver(this); // used for detecting app lifecycle
+
     loadTopUsHeadLines()
         .then((asd) => initSharedPreferences())
         .then((asd) => getFavoriteNewsSourcesFromDisk())
@@ -58,6 +61,22 @@ class _HomePageState extends State<HomePage> {
         .then((asd) => getCustomNewsSourcesFromDisk())
         .then((asd) => sortNewsSourcesArray())
         .then((asd) => getThemeSelectionFromDisk());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      _notification = state;
+
+      if (AppLifecycleState.resumed == state)
+        refreshNewsStories();
+    });
   }
 
   /*
@@ -171,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                 color: _selectedNewsSource == US_TOP_NEWS
                     ? _kGalleryDarkTheme.accentColor
                     : null,
-                icon: new Icon(Icons.home, color: getAccentColor()),
+                icon: new Icon(Icons.home, color:_selectedNewsSource == US_TOP_NEWS ? getAccentColor() : null),
                 onPressed: () => null,
                 padding:
                     new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -203,8 +222,8 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               new IconButton(
                 icon: favoriteNewsSources.contains(newsSource)
-                    ? new Icon(Icons.favorite, color: _selectedNewsSource == newsSource ? getAccentColor() : null)
-                    : new Icon(Icons.favorite_border, color: _selectedNewsSource == newsSource ? getAccentColor() : null),
+                    ? new Icon(Icons.star, color: _selectedNewsSource == newsSource ? getAccentColor() : null)
+                    : new Icon(Icons.star_border, color: _selectedNewsSource == newsSource ? getAccentColor() : null),
                 onPressed: () {
                   if (favoriteNewsSources.contains(newsSource))
                     favoriteNewsSources.remove(newsSource);
