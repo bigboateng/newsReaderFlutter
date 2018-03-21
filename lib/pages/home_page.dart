@@ -117,7 +117,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsSources() async {
     userDidSearch = false;
-    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl =
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -213,11 +212,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             : null)),
                 onTap: () {
                   appBarTitle = US_TOP_NEWS;
-                  if (_scrollController.hasClients)
-                    _scrollController.jumpTo(0.0);
                   Navigator.pop(context);
                   _selectedNewsSource = US_TOP_NEWS;
-                  loadTopUsHeadLines();
+                  loadTopUsHeadLines().then((asd) => scrollToTop());
                 },
               ))
             ],
@@ -266,17 +263,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     maxLines: 1,
                   ),
                   onTap: () {
-                    if (_scrollController.hasClients)
-                      _scrollController.jumpTo(0.0);
                     Navigator.pop(context);
                     newsSourceId = newsSourcesArray[index]['id'];
                     appBarTitle = newsSourcesArray[index]['name'];
                     _selectedNewsSource = newsSourcesArray[index]['name'];
 
                     if (customNewsSources.contains(newsSource))
-                      loadNewsStoriesFromCustomSource();
+                      loadNewsStoriesFromCustomSource().then((asd) => scrollToTop());
                     else
-                      loadNewsStories();
+                      loadNewsStories().then((asd) => scrollToTop());
                   },
                 ),
               ),
@@ -665,14 +660,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future refreshNewsStories() async {
     if (userDidSearch) // refresh a search result
-      loadNewsStoriesFromSearch(_seachTextFieldController.text);
+      loadNewsStoriesFromSearch(_seachTextFieldController.text).then((asd) => scrollToTop());
     else if (customNewsSources.contains(
         _selectedNewsSource)) // refresh news from a custom news source
-      loadNewsStoriesFromCustomSource();
+      loadNewsStoriesFromCustomSource().then((asd) => scrollToTop());
     else if (_selectedNewsSource == US_TOP_NEWS) // refresh the homepage news
-      loadTopUsHeadLines();
+      loadTopUsHeadLines().then((asd) => scrollToTop());
     else // refresh news from the selected standard source
-      loadNewsStories();
+      loadNewsStories().then((asd) => scrollToTop());
 
     // Show refresh indicator for 3 seconds
     final Completer<Null> completer = new Completer<Null>();
@@ -680,6 +675,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       completer.complete(null);
     });
     return completer.future;
+  }
+
+  void scrollToTop() {
+    if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
   }
 
   saveThemeSelectionToDisk(bool useDarkTheme) async {
