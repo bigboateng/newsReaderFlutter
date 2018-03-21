@@ -85,6 +85,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsStoriesFromCustomSource() async {
     userDidSearch = false;
+    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl = "https://newsapi.org/v2/everything?domains=" +
         newsSourceId +
@@ -101,6 +102,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadTopUsHeadLines() async {
     userDidSearch = false;
+    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl =
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -115,6 +117,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsSources() async {
     userDidSearch = false;
+    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl =
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -130,6 +133,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsStories() async {
     userDidSearch = false;
+    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl = "https://newsapi.org/v2/top-headlines?sources=" +
         newsSourceId +
@@ -144,6 +148,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsStoriesFromSearch(String keyWord) async {
     userDidSearch = true;
+    if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String searchUrl = "https://newsapi.org/v2/everything?q=" +
         keyWord +
@@ -212,7 +217,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     _scrollController.jumpTo(0.0);
                   Navigator.pop(context);
                   _selectedNewsSource = US_TOP_NEWS;
-                  if (newsStoriesArray != null) newsStoriesArray.clear();
                   loadTopUsHeadLines();
                 },
               ))
@@ -268,7 +272,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     newsSourceId = newsSourcesArray[index]['id'];
                     appBarTitle = newsSourcesArray[index]['name'];
                     _selectedNewsSource = newsSourcesArray[index]['name'];
-                    if (newsStoriesArray != null) newsStoriesArray.clear();
 
                     if (customNewsSources.contains(newsSource))
                       loadNewsStoriesFromCustomSource();
@@ -543,7 +546,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-
   /*
   * HELPER METHODS BEGIN
   */
@@ -583,7 +585,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
       Navigator.of(context).pop();
       newsSourcesArray.add(customNewsSourceMap);
-      newsStoriesArray.clear();
       newsSourceId = customNewsSourceMap['id'];
       appBarTitle = customNewsSourceMap['name'];
       _selectedNewsSource = customNewsSourceMap['name'];
@@ -598,7 +599,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   beginNewsSearch(String keyword) {
     if (keyword.length > 0) {
-      if (newsStoriesArray != null) newsStoriesArray.clear();
       appBarTitle = "'" + keyword + "'";
       loadNewsStoriesFromSearch(keyword);
       Navigator.of(context).pop();
