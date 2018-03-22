@@ -269,7 +269,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     _selectedNewsSource = newsSourcesArray[index]['name'];
 
                     if (customNewsSources.contains(newsSource))
-                      loadNewsStoriesFromCustomSource().then((asd) => scrollToTop());
+                      loadNewsStoriesFromCustomSource()
+                          .then((asd) => scrollToTop());
                     else
                       loadNewsStories().then((asd) => scrollToTop());
                   },
@@ -492,6 +493,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<Null> showAddCustomNewsSourcesDialog() async {
+    final customNewsSourceFormField = new GlobalKey<FormState>();
     TextEditingController _textFieldController = new TextEditingController();
     double screenWidth = MediaQuery.of(context).size.width;
     return showDialog<Null>(
@@ -505,20 +507,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: new ListBody(
                 children: <Widget>[
                   new SizedBox(
-                    width: screenWidth * 0.8,
-                    height: 50.0,
-                    child: new TextField(
-                      autocorrect: false,
-                      autofocus: true,
-                      controller: _textFieldController,
-                      maxLength: 75,
-                      maxLengthEnforced: true,
-                      decoration: new InputDecoration(
-                          icon: const Icon(Icons.search), hintText: "cnn.com"),
-                      onSubmitted: (asd) =>
-                          addCustomNewsSource(_textFieldController.text),
-                    ),
-                  )
+                      width: screenWidth * 0.8,
+                      height: 70.0,
+                      child: new Form(
+                          key: customNewsSourceFormField,
+                          child: new TextFormField(
+                            autofocus: true,
+                            autocorrect: false,
+                            decoration: new InputDecoration(
+                                icon: const Icon(Icons.search),
+                                hintText: "mynews.com"),
+                            onSaved: (val) => addCustomNewsSource(val),
+                            onFieldSubmitted: ((val) {
+                              if (val.isEmpty)
+                                return "You must enter a url like mynews.com";
+                              else if (customNewsSources.contains(val))
+                                return "Custom news source already exists";
+                              else
+                                return null;
+                            }),
+                            validator: ((val) {
+                              if (val.isEmpty)
+                                return "You must enter a url like mynews.com";
+                              else if (customNewsSources.contains(val))
+                                return "Custom news source already exists";
+                              else
+                                return null;
+                            }),
+                          )))
                 ],
               ),
             ),
@@ -532,8 +548,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               new FlatButton(
                 child: new Text('ADD'),
                 onPressed: () {
-                  String customNewsSource = _textFieldController.text;
-                  addCustomNewsSource(customNewsSource);
+                  if (customNewsSourceFormField.currentState.validate())
+                    customNewsSourceFormField.currentState.save();
                 },
               ),
             ],
@@ -565,31 +581,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void addCustomNewsSource(String customNewsSource) {
-    if (!customNewsSources.contains(customNewsSource) &&
-        customNewsSource != "") {
-      customNewsSources.add(customNewsSource);
+    customNewsSources.add(customNewsSource);
 
-      // save list to disk
-      prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
+    // save list to disk
+    prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
 
-      // Build map to add to newsSourcesArray
-      Map<String, String> customNewsSourceMap = {
-        'name': customNewsSource,
-        'id': customNewsSource.toLowerCase()
-      };
+    // Build map to add to newsSourcesArray
+    Map<String, String> customNewsSourceMap = {
+      'name': customNewsSource,
+      'id': customNewsSource.toLowerCase()
+    };
 
-      Navigator.of(context).pop();
-      newsSourcesArray.add(customNewsSourceMap);
-      newsSourceId = customNewsSourceMap['id'];
-      appBarTitle = customNewsSourceMap['name'];
-      _selectedNewsSource = customNewsSourceMap['name'];
+    Navigator.of(context).pop();
+    newsSourcesArray.add(customNewsSourceMap);
+    newsSourceId = customNewsSourceMap['id'];
+    appBarTitle = customNewsSourceMap['name'];
+    _selectedNewsSource = customNewsSourceMap['name'];
 
-      sortNewsSourcesArray();
+    sortNewsSourcesArray();
 
-      setState(() {
-        loadNewsStoriesFromCustomSource();
-      });
-    }
+    setState(() {
+      loadNewsStoriesFromCustomSource();
+    });
   }
 
   beginNewsSearch(String keyword) {
@@ -660,7 +673,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future refreshNewsStories() async {
     if (userDidSearch) // refresh a search result
-      loadNewsStoriesFromSearch(_seachTextFieldController.text).then((asd) => scrollToTop());
+      loadNewsStoriesFromSearch(_seachTextFieldController.text)
+          .then((asd) => scrollToTop());
     else if (customNewsSources.contains(
         _selectedNewsSource)) // refresh news from a custom news source
       loadNewsStoriesFromCustomSource().then((asd) => scrollToTop());
