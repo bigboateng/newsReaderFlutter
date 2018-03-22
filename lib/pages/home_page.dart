@@ -28,6 +28,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static const String US_TOP_NEWS = "US Top News";
 
+  // Drop down menu selections
+  static const String THEMES = "Themes";
+  static const String SEARCH = "Search";
+  static const String PROVIDER = "Provider";
+
+  String themeRadioGroupValue = "";
+
   bool shouldShowHelpText = false;
   bool userDidSearch = false;
   bool useDarkTheme = false;
@@ -200,7 +207,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         : null),
                 onPressed: () => null,
                 padding:
-                    new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    new EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               ),
               new Expanded(
                   child: new InkWell(
@@ -247,7 +254,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   });
                 },
                 padding:
-                    new EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    new EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               ),
               new Expanded(
                 child: new InkWell(
@@ -424,25 +431,115 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return new AppBar(
       title: new Text(appBarTitle),
       actions: <Widget>[
-        new IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => showSearchDialog()),
-        new IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () => showAddCustomNewsSourcesDialog(),
+        new PopupMenuButton<ListTile>(
+          //onSelected: showMenuSelection,
+          itemBuilder: (BuildContext context) => <PopupMenuItem<ListTile>>[
+                new PopupMenuItem<ListTile>(
+                    child: new ListTile(
+                  leading: const Icon(Icons.format_paint),
+                  title: const Text(THEMES),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        showThemeDialog();
+                      },
+                )),
+                new PopupMenuItem<ListTile>(
+                    child: new ListTile(
+                  leading: const Icon(Icons.search),
+                  title: const Text(SEARCH),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        showSearchDialog();
+                      },
+                )),
+                new PopupMenuItem<ListTile>(
+                    child: new ListTile(
+                  leading: const Icon(Icons.add),
+                  title: const Text(PROVIDER),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    showAddCustomNewsSourcesDialog();
+                  },
+                )),
+              ],
         ),
-        setIconForTheme(),
-        new Switch(
-          value: useDarkTheme,
-          onChanged: (bool value) {
-            saveThemeSelectionToDisk(value);
-            setState(() {
-              useDarkTheme = value;
-            });
-          },
-        )
       ],
     );
+  }
+
+  showMenuSelection(String selection) {
+    print(selection);
+
+    switch (selection) {
+      case THEMES:
+        break;
+      case SEARCH:
+        break;
+      case PROVIDER:
+        break;
+    }
+  }
+
+  Future<Null> showThemeDialog() async {
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    return showDialog<Null>(
+      context: context,
+      barrierDismissible: true,
+      child: new Theme(
+          data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+          child: new AlertDialog(
+            title: new Text('Choose Theme...'),
+            content: new SingleChildScrollView(
+              child: new ListBody(
+                children: <Widget>[
+                  new Row(
+                    children: <Widget>[
+                      new Radio<String> (
+                        value: "dark_theme",
+                        groupValue: themeRadioGroupValue,
+                        onChanged: setTheme
+                      ),
+                      const Text("Dark Theme")
+                    ],
+                  ),
+                  new Row(
+                    children: <Widget>[
+                      new Radio<String> (
+                          value: "light_theme",
+                          groupValue: themeRadioGroupValue,
+                          onChanged: setTheme
+                      ),
+                      const Text("Light Theme")
+                    ],
+                  )
+
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('CLOSE'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text('SELECT'),
+                onPressed: () {
+                  beginNewsSearch(_seachTextFieldController.text);
+                },
+              ),
+            ],
+          )),
+    );
+  }
+
+  setTheme(String chosenTheme) {
+    print("Called setTheme: $chosenTheme");
+    setState(() {
+      themeRadioGroupValue = chosenTheme;
+    });
   }
 
   Future<Null> showSearchDialog() async {
@@ -502,7 +599,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: new Theme(
           data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
           child: new AlertDialog(
-            title: new Text('Add custom news sources...'),
+            title: new Text('Add News Provider'),
             content: new SingleChildScrollView(
               child: new ListBody(
                 children: <Widget>[
@@ -515,7 +612,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             autofocus: true,
                             autocorrect: false,
                             decoration: new InputDecoration(
-                                icon: const Icon(Icons.search),
                                 hintText: "mynews.com"),
                             onSaved: (val) => addCustomNewsSource(val),
                             onFieldSubmitted: ((val) {
