@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String SEARCH = "Search";
   static const String PROVIDER = "Provider";
 
-  String themeRadioGroupValue = "";
+  String currentTheme = "light_theme";
 
   bool shouldShowHelpText = false;
   bool userDidSearch = false;
@@ -432,25 +432,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       title: new Text(appBarTitle),
       actions: <Widget>[
         new PopupMenuButton<ListTile>(
-          //onSelected: showMenuSelection,
           itemBuilder: (BuildContext context) => <PopupMenuItem<ListTile>>[
                 new PopupMenuItem<ListTile>(
                     child: new ListTile(
                   leading: const Icon(Icons.format_paint),
                   title: const Text(THEMES),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        showThemeDialog();
-                      },
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    showThemeDialog();
+                  },
                 )),
                 new PopupMenuItem<ListTile>(
                     child: new ListTile(
                   leading: const Icon(Icons.search),
                   title: const Text(SEARCH),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        showSearchDialog();
-                      },
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    showSearchDialog();
+                  },
                 )),
                 new PopupMenuItem<ListTile>(
                     child: new ListTile(
@@ -467,79 +466,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  showMenuSelection(String selection) {
-    print(selection);
+  Future<Null> showThemeDialog() async {
+    return showDialog<Null>(
+        context: context,
+        barrierDismissible: true,
+        child: new ThemeSelection(onThemeChosen: setTheme, currentTheme: this.currentTheme));
+  }
 
-    switch (selection) {
-      case THEMES:
+  void setTheme(String chosenTheme) {
+    currentTheme = chosenTheme;
+
+    switch (chosenTheme) {
+      case 'light_theme':
+        setState(() {
+          useDarkTheme = false;
+        });
         break;
-      case SEARCH:
-        break;
-      case PROVIDER:
+      case 'dark_theme':
+        setState(() {
+          useDarkTheme = true;
+        });
         break;
     }
-  }
 
-  Future<Null> showThemeDialog() async {
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    return showDialog<Null>(
-      context: context,
-      barrierDismissible: true,
-      child: new Theme(
-          data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
-          child: new AlertDialog(
-            title: new Text('Choose Theme...'),
-            content: new SingleChildScrollView(
-              child: new ListBody(
-                children: <Widget>[
-                  new Row(
-                    children: <Widget>[
-                      new Radio<String> (
-                        value: "dark_theme",
-                        groupValue: themeRadioGroupValue,
-                        onChanged: setTheme
-                      ),
-                      const Text("Dark Theme")
-                    ],
-                  ),
-                  new Row(
-                    children: <Widget>[
-                      new Radio<String> (
-                          value: "light_theme",
-                          groupValue: themeRadioGroupValue,
-                          onChanged: setTheme
-                      ),
-                      const Text("Light Theme")
-                    ],
-                  )
-
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text('CLOSE'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text('SELECT'),
-                onPressed: () {
-                  beginNewsSearch(_seachTextFieldController.text);
-                },
-              ),
-            ],
-          )),
-    );
-  }
-
-  setTheme(String chosenTheme) {
-    print("Called setTheme: $chosenTheme");
-    setState(() {
-      themeRadioGroupValue = chosenTheme;
-    });
+    // TODO: save theme selection to disk
   }
 
   Future<Null> showSearchDialog() async {
@@ -611,8 +561,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           child: new TextFormField(
                             autofocus: true,
                             autocorrect: false,
-                            decoration: new InputDecoration(
-                                hintText: "mynews.com"),
+                            decoration:
+                                new InputDecoration(hintText: "mynews.com"),
                             onSaved: (val) => addCustomNewsSource(val),
                             onFieldSubmitted: ((val) {
                               if (val.isEmpty)
@@ -848,5 +798,71 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       return _kGalleryDarkTheme.accentColor;
     else
       return _kGalleryLightTheme.accentColor;
+  }
+}
+
+/*
+  Classes that holds the state of theme selection dialog
+ */
+
+typedef void ThemeSelectionCallback(String chosenTheme);
+
+class ThemeSelection extends StatefulWidget {
+  final ThemeSelectionCallback onThemeChosen;
+  String currentTheme = "";
+
+  ThemeSelection({this.onThemeChosen, this.currentTheme});
+
+  @override
+  _ThemeSelectionState createState() => new _ThemeSelectionState(currentTheme: this.currentTheme);
+}
+
+class _ThemeSelectionState extends State<ThemeSelection> {
+  String themeGroupValue = "light_theme";
+  String currentTheme = "";
+
+  _ThemeSelectionState({this.currentTheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return new Theme(
+        data: currentTheme == "light_theme" ? _kGalleryLightTheme : _kGalleryDarkTheme,
+        child: new AlertDialog(
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('CLOSE'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text('SELECT'),
+              onPressed: () {
+                widget.onThemeChosen(themeGroupValue);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+          title: const Text("Choose Theme..."),
+          content: new SingleChildScrollView(
+              child: new ListBody(
+            children: <Widget>[
+              new RadioListTile(
+                value: "light_theme",
+                title: const Text("Light Theme"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
+              new RadioListTile(
+                value: "dark_theme",
+                title: const Text("Dark Theme"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              )
+            ],
+          )),
+        ));
   }
 }
