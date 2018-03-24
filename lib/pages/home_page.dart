@@ -432,6 +432,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       title: new Text(appBarTitle),
       actions: <Widget>[
         new PopupMenuButton<ListTile>(
+          elevation: 16.0,
           itemBuilder: (BuildContext context) => <PopupMenuItem<ListTile>>[
                 new PopupMenuItem<ListTile>(
                     child: new ListTile(
@@ -489,7 +490,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         break;
     }
 
-    // TODO: save theme selection to disk
+    prefs.setString("theme", chosenTheme);
   }
 
   Future<Null> showSearchDialog() async {
@@ -659,17 +660,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  setIconForTheme() {
-    if (useDarkTheme)
-      return new Padding(
-          padding: new EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
-          child: const Icon(Icons.wb_sunny));
-    else
-      return new Padding(
-          padding: new EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
-          child: const Icon(Icons.brightness_2));
-  }
-
   String formatDateForUi(String dateTime) {
     String formattedDate = "";
 
@@ -741,16 +731,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (_scrollController.hasClients) _scrollController.jumpTo(0.0);
   }
 
-  saveThemeSelectionToDisk(bool useDarkTheme) async {
-    prefs.setBool(USE_DARK_THEME, useDarkTheme);
-  }
+  getThemeSelectionFromDisk() {
+    String themeOnDisk = prefs.getString("theme");
 
-  getThemeSelectionFromDisk() async {
-    bool shouldUseDarkTheme = prefs.getBool(USE_DARK_THEME);
+    if (themeOnDisk != null)
+      currentTheme = themeOnDisk;
 
-    if (shouldUseDarkTheme != null)
       setState(() {
-        useDarkTheme = shouldUseDarkTheme;
+        useDarkTheme = themeOnDisk == "dark_theme";
       });
   }
 
@@ -809,7 +797,7 @@ typedef void ThemeSelectionCallback(String chosenTheme);
 
 class ThemeSelection extends StatefulWidget {
   final ThemeSelectionCallback onThemeChosen;
-  String currentTheme = "";
+  String currentTheme;
 
   ThemeSelection({this.onThemeChosen, this.currentTheme});
 
@@ -819,9 +807,15 @@ class ThemeSelection extends StatefulWidget {
 
 class _ThemeSelectionState extends State<ThemeSelection> {
   String themeGroupValue = "light_theme";
-  String currentTheme = "";
+  String currentTheme;
 
   _ThemeSelectionState({this.currentTheme});
+
+  @override
+  void initState() {
+    super.initState();
+    themeGroupValue = currentTheme;
+  }
 
   @override
   Widget build(BuildContext context) {
