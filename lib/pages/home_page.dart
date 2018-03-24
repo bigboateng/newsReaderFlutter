@@ -24,7 +24,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
-  static const String USE_DARK_THEME = "USE_DARK_THEME";
   static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
   static const String US_TOP_NEWS = "US Top News";
 
@@ -34,16 +33,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String PROVIDER = "Provider";
 
   String currentTheme = "light_theme";
+  DateTime timeOfAppPaused;
 
   bool shouldShowHelpText = false;
   bool userDidSearch = false;
   bool useDarkTheme = false;
   String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
+
   List newsSourcesArray = [];
   List newsStoriesArray = [];
   List favoriteNewsSources = [];
   List customNewsSources = [];
+
   String _selectedNewsSource =
       US_TOP_NEWS; // used to highlight currently selected news source listTile
   AppLifecycleState _notification;
@@ -79,11 +81,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    setState(() {
-      _notification = state;
+    _notification = state;
 
-      if (AppLifecycleState.resumed == state) refreshNewsStories();
-    });
+    if (AppLifecycleState.resumed == state) {
+      // only refresh news stories if 10mins have passed since app was paused
+      DateTime now = new DateTime.now();
+      Duration timeSinceAppWasPaused = now.difference(timeOfAppPaused);
+
+      if (timeSinceAppWasPaused.inMinutes >= 10) refreshNewsStories();
+    } else if (AppLifecycleState.paused == state)
+      // save current time to memory
+      timeOfAppPaused = new DateTime.now();
   }
 
   /*
@@ -471,7 +479,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return showDialog<Null>(
         context: context,
         barrierDismissible: true,
-        child: new ThemeSelection(onThemeChosen: setTheme, currentTheme: this.currentTheme));
+        child: new ThemeSelection(
+            onThemeChosen: setTheme, currentTheme: this.currentTheme));
   }
 
   void setTheme(String chosenTheme) {
@@ -734,12 +743,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   getThemeSelectionFromDisk() {
     String themeOnDisk = prefs.getString("theme");
 
-    if (themeOnDisk != null)
-      currentTheme = themeOnDisk;
+    if (themeOnDisk != null) currentTheme = themeOnDisk;
 
-      setState(() {
-        useDarkTheme = themeOnDisk == "dark_theme";
-      });
+    setState(() {
+      useDarkTheme = themeOnDisk == "dark_theme";
+    });
   }
 
   saveFavoriteNewsSourcesToDisk() async {
@@ -802,7 +810,8 @@ class ThemeSelection extends StatefulWidget {
   ThemeSelection({this.onThemeChosen, this.currentTheme});
 
   @override
-  _ThemeSelectionState createState() => new _ThemeSelectionState(currentTheme: this.currentTheme);
+  _ThemeSelectionState createState() =>
+      new _ThemeSelectionState(currentTheme: this.currentTheme);
 }
 
 class _ThemeSelectionState extends State<ThemeSelection> {
@@ -820,7 +829,9 @@ class _ThemeSelectionState extends State<ThemeSelection> {
   @override
   Widget build(BuildContext context) {
     return new Theme(
-        data: currentTheme == "light_theme" ? _kGalleryLightTheme : _kGalleryDarkTheme,
+        data: currentTheme == "light_theme"
+            ? _kGalleryLightTheme
+            : _kGalleryDarkTheme,
         child: new AlertDialog(
           actions: <Widget>[
             new FlatButton(
