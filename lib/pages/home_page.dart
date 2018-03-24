@@ -46,6 +46,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List favoriteNewsSources = [];
   List customNewsSources = [];
 
+  bool noServerConnForNewsStories = false;
+  bool isValidCustomNewsSource = true;
+
   String _selectedNewsSource =
       US_TOP_NEWS; // used to highlight currently selected news source listTile
   AppLifecycleState _notification;
@@ -106,12 +109,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         newsSourceId +
         "&apiKey=a30edf50cbbb48049945142f004c36c3";
 
-    http.Response reponse = await http.get(dataUrl);
-
-    Map<String, dynamic> newsStories = JSON.decode(reponse.body);
+    http.Response response = await http.get(dataUrl);
 
     setState(() {
-      newsStoriesArray = newsStories['articles'];
+      if (response.statusCode == 200) {
+        Map<String, dynamic> newsStories = JSON.decode(response.body);
+
+        if (newsStories['totalResults'] == 0)
+          isValidCustomNewsSource = false;
+        else {
+          isValidCustomNewsSource = true;
+          newsStoriesArray = newsStories['articles'];
+        }
+      } else {
+        noServerConnForNewsStories = true;
+      }
     });
   }
 
@@ -121,13 +133,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     String dataUrl =
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
-    http.Response reponse = await http.get(dataUrl);
+    http.Response response = await http.get(dataUrl);
 
-    Map<String, dynamic> newsStories = JSON.decode(reponse.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> newsStories = JSON.decode(response.body);
 
-    setState(() {
-      newsStoriesArray = newsStories['articles'];
-    });
+      setState(() {
+        noServerConnForNewsStories = false;
+        newsStoriesArray = newsStories['articles'];
+      });
+    } else {
+      setState(() {
+        noServerConnForNewsStories = true;
+      });
+    }
   }
 
   loadNewsSources() async {
@@ -154,10 +173,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         "&apiKey=a30edf50cbbb48049945142f004c36c3";
     http.Response response = await http.get(dataUrl);
 
-    setState(() {
+    if (response.statusCode == 200) {
       Map<String, dynamic> newsStories = JSON.decode(response.body);
-      newsStoriesArray = newsStories['articles'];
-    });
+
+      setState(() {
+        noServerConnForNewsStories = false;
+        newsStoriesArray = newsStories['articles'];
+      });
+    } else {
+      setState(() {
+        noServerConnForNewsStories = true;
+      });
+    }
   }
 
   loadNewsStoriesFromSearch(String keyWord) async {
@@ -170,10 +197,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     http.Response response = await http.get(searchUrl);
 
-    setState(() {
+    if (response.statusCode == 200) {
       Map<String, dynamic> newsStories = JSON.decode(response.body);
-      newsStoriesArray = newsStories['articles'];
-    });
+
+      setState(() {
+        noServerConnForNewsStories = false;
+        newsStoriesArray = newsStories['articles'];
+      });
+    } else {
+      setState(() {
+        noServerConnForNewsStories = true;
+      });
+    }
   }
 
   /*
@@ -318,33 +353,36 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   buildListOfNewsStories() {
-    if (newsStoriesArray == null || newsStoriesArray.length == 0) {
-      new Timer(new Duration(seconds: 6),
-          () => setState(() => shouldShowHelpText = true));
-      Opacity textOpacity = new Opacity(
-          opacity: shouldShowHelpText ? 1.0 : 0.0,
+    if (!isValidCustomNewsSource) {
+      return new Center(
           child: new Padding(
-            padding: new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
-            child: new Text(
-                "No data received from server.\nPlease check your internet connection.\n\nIf you are seeing this screen after adding a custom news source, then your custom news source is invalid.",
-                style: new TextStyle(fontSize: 26.0),
-                textAlign: TextAlign.center),
-          ));
-
+              padding:
+                  new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+              child: new Text(
+                  "The news provider '$_selectedNewsSource' was not recognized.",
+                  style: const TextStyle(fontSize: 26.0),
+                  textAlign: TextAlign.center)));
+    } else if (noServerConnForNewsStories) {
+      new Timer(
+          new Duration(seconds: 6), () => setState(() => refreshNewsStories()));
       return new Center(
           child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           new CircularProgressIndicator(),
-          textOpacity,
+          new Padding(
+            padding: new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+            child: new Text(
+                "No data received from server.\nPlease check your internet connection.",
+                style: new TextStyle(fontSize: 26.0),
+                textAlign: TextAlign.center),
+          )
         ],
       ));
     } else {
-      shouldShowHelpText = false;
-
       return new Scrollbar(
         child: new RefreshIndicator(
-          displacement: 80.0,
+            displacement: 80.0,
             onRefresh: () => refreshNewsStories(),
             child: new ListView(
               controller: _scrollController,
