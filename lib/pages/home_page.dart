@@ -344,6 +344,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
       return new Scrollbar(
         child: new RefreshIndicator(
+          displacement: 80.0,
             onRefresh: () => refreshNewsStories(),
             child: new ListView(
               controller: _scrollController,
