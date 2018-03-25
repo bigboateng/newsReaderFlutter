@@ -52,11 +52,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   String _selectedNewsSource =
       US_TOP_NEWS; // used to highlight currently selected news source listTile
-  AppLifecycleState _notification;
 
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
   TextEditingController _seachTextFieldController = new TextEditingController();
   SharedPreferences prefs;
@@ -85,8 +82,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _notification = state;
-
     if (AppLifecycleState.resumed == state) {
       // only refresh news stories if 10mins have passed since app was paused
       DateTime now = new DateTime.now();
@@ -225,9 +220,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return new Theme(
+    return Theme(
         data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
-        child: new Scaffold(
+        child: Scaffold(
             key: _scaffoldKey,
             appBar: buildAppBar(),
             drawer: buildListOfNewsSources(),
@@ -236,47 +231,45 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   buildListOfNewsSources() {
     if (noServerConnForNewsSources) {
-      new Timer(
-          new Duration(seconds: 5), () => loadNewsSources());
-      return new Drawer(
-          child: new Center(
-              child: new Column(
+      Timer(Duration(seconds: 5), () => loadNewsSources());
+      return Drawer(
+          child: Center(
+              child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new CircularProgressIndicator(),
-          new Padding(
-              padding: new EdgeInsets.all(8.0),
-              child: new Text("Retrying connection...",
-                  style: new TextStyle(fontSize: 14.0),
+          CircularProgressIndicator(),
+          Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Retrying connection...",
+                  style: TextStyle(fontSize: 14.0),
                   textAlign: TextAlign.center)),
         ],
       )));
     } else {
-      return new Drawer(
-          child: new Scrollbar(
-              child: new ListView(
-                  children: new List.generate(newsSourcesArray.length + 1,
-                      (int index) {
+      return Drawer(
+          child: Scrollbar(
+              child: ListView(
+                  children:
+                      List.generate(newsSourcesArray.length + 1, (int index) {
         if (index == 0) {
           // generate home listTile
-          return new Row(
+          return Row(
             children: <Widget>[
               new IconButton(
                 color: _selectedNewsSource == US_TOP_NEWS
                     ? _kGalleryDarkTheme.accentColor
                     : null,
-                icon: new Icon(Icons.home,
+                icon: Icon(Icons.home,
                     color: _selectedNewsSource == US_TOP_NEWS
                         ? getAccentColor()
                         : null),
                 onPressed: () => null,
-                padding:
-                    new EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               ),
-              new Expanded(
-                  child: new InkWell(
-                child: new Text(US_TOP_NEWS,
-                    style: new TextStyle(
+              Expanded(
+                  child: InkWell(
+                child: Text(US_TOP_NEWS,
+                    style: TextStyle(
                         fontSize: 20.0,
                         color: _selectedNewsSource == US_TOP_NEWS
                             ? getAccentColor()
@@ -293,7 +286,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         } else {
           index -= 1;
           String newsSource = newsSourcesArray[index]['name'];
-          return new Row(
+          return Row(
             children: <Widget>[
               new IconButton(
                 icon: favoriteNewsSources.contains(newsSource)
@@ -317,14 +310,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     sortNewsSourcesArray();
                   });
                 },
-                padding:
-                    new EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               ),
-              new Expanded(
-                child: new InkWell(
-                  child: new Text(
+              Expanded(
+                child: InkWell(
+                  child: Text(
                     newsSource,
-                    style: new TextStyle(
+                    style: TextStyle(
                         fontSize: 20.0,
                         color: _selectedNewsSource ==
                                 newsSourcesArray[index]['name']
@@ -347,10 +339,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   },
                 ),
               ),
-              new Opacity(
+              Opacity(
                   opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
-                  child: new IconButton(
-                    icon: new Icon(Icons.remove_circle_outline,
+                  child: IconButton(
+                    icon: Icon(Icons.remove_circle_outline,
                         color: _selectedNewsSource == newsSource
                             ? getAccentColor()
                             : null),
@@ -375,37 +367,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   buildListOfNewsStories() {
     if (!isValidCustomNewsSource) {
-      return new Center(
-          child: new Padding(
+      return Center(
+          child: Padding(
               padding:
-                  new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
-              child: new Text(
+                  EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+              child: Text(
                   "The news provider '$_selectedNewsSource' was not recognized.",
-                  style: const TextStyle(fontSize: 26.0),
+                  style: TextStyle(fontSize: 26.0),
                   textAlign: TextAlign.center)));
     } else if (noServerConnForNewsStories) {
-      new Timer(
-          new Duration(seconds: 6), () => setState(() => refreshNewsStories()));
-      return new Center(
-          child: new Column(
+      Timer(
+          Duration(seconds: 6), () => setState(() => refreshNewsStories()));
+      return Center(
+          child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new CircularProgressIndicator(),
-          new Padding(
-            padding: new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
-            child: new Text(
+          CircularProgressIndicator(),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+            child: Text(
                 "No data received from server.\nPlease check your internet connection. Reconnecting...",
-                style: new TextStyle(fontSize: 26.0),
+                style: TextStyle(fontSize: 26.0),
                 textAlign: TextAlign.center),
           )
         ],
       ));
     } else {
-      return new Scrollbar(
+      return Scrollbar(
         child: new RefreshIndicator(
             displacement: 80.0,
             onRefresh: () => refreshNewsStories(),
-            child: new ListView(
+            child: ListView(
               controller: _scrollController,
               children: new List.generate(newsStoriesArray.length, (int index) {
                 String title = newsStoriesArray[index]['title'] == null
@@ -430,49 +422,49 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                 String formattedDate = formatDateForUi(dateTime);
 
-                return new Padding(
-                    padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                    child: new InkWell(
+                return Padding(
+                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                    child: InkWell(
                         onTap: () => _launchURL(url),
-                        child: new Card(
+                        child: Card(
                             elevation: 5.0,
-                            child: new Column(
+                            child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   showImageIfAvailable(imageUrl),
-                                  new Padding(
-                                    padding: new EdgeInsets.fromLTRB(
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(
                                         8.0, 8.0, 8.0, 8.0),
-                                    child: new Text(title,
+                                    child: Text(title,
                                         textAlign: TextAlign.left,
-                                        style: new TextStyle(
+                                        style: TextStyle(
                                             fontSize: 26.0,
                                             fontWeight: FontWeight.bold)),
                                   ),
                                   showNewsSourceName(newsSourceName),
-                                  new Padding(
-                                    padding: new EdgeInsets.fromLTRB(
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(
                                         16.0, 8.0, 16.0, 8.0),
-                                    child: new Text(newsText,
-                                        style: new TextStyle(fontSize: 16.0)),
+                                    child: Text(newsText,
+                                        style: TextStyle(fontSize: 16.0)),
                                   ),
-                                  new Padding(
-                                      padding: new EdgeInsets.fromLTRB(
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(
                                           16.0, 16.0, 16.0, 8.0),
-                                      child: new Row(
+                                      child: Row(
                                         children: <Widget>[
-                                          new Expanded(
-                                            child: new Text(formattedDate,
-                                                style: new TextStyle(
+                                          Expanded(
+                                            child: Text(formattedDate,
+                                                style: TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic)),
                                           ),
-                                          new IconButton(
-                                              icon: new Icon(
+                                          IconButton(
+                                              icon: Icon(
                                                 Icons.share,
                                                 color: Colors.blue,
                                               ),
-                                              padding: new EdgeInsets.fromLTRB(
+                                              padding: EdgeInsets.fromLTRB(
                                                   0.0, 0.0, 16.0, 0.0),
                                               iconSize: 32.0,
                                               onPressed: () => sharing.share(
@@ -481,8 +473,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       '"' +
                                                       " " +
                                                       url)),
-                                          new Text("READ MORE",
-                                              style: new TextStyle(
+                                          Text("READ MORE",
+                                              style: TextStyle(
                                                   fontSize: 16.0,
                                                   color: Colors.blue,
                                                   fontWeight: FontWeight.bold))
@@ -496,34 +488,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   buildAppBar() {
-    return new AppBar(
-      title: new Text(appBarTitle),
+    return AppBar(
+      title: Text(appBarTitle),
       actions: <Widget>[
-        new PopupMenuButton<ListTile>(
+        PopupMenuButton<ListTile>(
           elevation: 16.0,
           itemBuilder: (BuildContext context) => <PopupMenuItem<ListTile>>[
-                new PopupMenuItem<ListTile>(
-                    child: new ListTile(
-                  leading: const Icon(Icons.format_paint),
-                  title: const Text(THEMES),
+                PopupMenuItem<ListTile>(
+                    child: ListTile(
+                  leading: Icon(Icons.format_paint),
+                  title: Text(THEMES),
                   onTap: () {
                     Navigator.of(context).pop();
                     showThemeDialog();
                   },
                 )),
-                new PopupMenuItem<ListTile>(
-                    child: new ListTile(
-                  leading: const Icon(Icons.search),
-                  title: const Text(SEARCH),
+                PopupMenuItem<ListTile>(
+                    child: ListTile(
+                  leading: Icon(Icons.search),
+                  title: Text(SEARCH),
                   onTap: () {
                     Navigator.of(context).pop();
                     showSearchDialog();
                   },
                 )),
-                new PopupMenuItem<ListTile>(
-                    child: new ListTile(
-                  leading: const Icon(Icons.add),
-                  title: const Text(PROVIDER),
+                PopupMenuItem<ListTile>(
+                    child: ListTile(
+                  leading: Icon(Icons.add),
+                  title: Text(PROVIDER),
                   onTap: () {
                     Navigator.of(context).pop();
                     showAddCustomNewsSourcesDialog();
@@ -539,7 +531,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return showDialog<Null>(
         context: context,
         barrierDismissible: true,
-        child: new ThemeSelection(
+        child: ThemeSelection(
             onThemeChosen: setTheme, currentTheme: this.currentTheme));
   }
 
@@ -567,23 +559,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return showDialog<Null>(
       context: context,
       barrierDismissible: true,
-      child: new Theme(
+      child: Theme(
           data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
-          child: new AlertDialog(
-            title: new Text('Search For News Articles...'),
-            content: new SingleChildScrollView(
-              child: new ListBody(
+          child: AlertDialog(
+            title: Text('Search For News Articles...'),
+            content: SingleChildScrollView(
+              child: ListBody(
                 children: <Widget>[
-                  new SizedBox(
+                  SizedBox(
                     width: screenWidth * 0.8,
                     height: 50.0,
-                    child: new TextField(
+                    child: TextField(
                       controller: _seachTextFieldController,
                       autofocus: true,
                       maxLength: 50,
                       maxLengthEnforced: true,
                       decoration:
-                          new InputDecoration(icon: const Icon(Icons.search)),
+                          InputDecoration(icon: Icon(Icons.search)),
                       onSubmitted: (asd) =>
                           beginNewsSearch(_seachTextFieldController.text),
                     ),
@@ -592,14 +584,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
             actions: <Widget>[
-              new FlatButton(
-                child: new Text('CLOSE'),
+              FlatButton(
+                child: Text('CLOSE'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
-              new FlatButton(
-                child: new Text('SEARCH'),
+              FlatButton(
+                child: Text('SEARCH'),
                 onPressed: () {
                   beginNewsSearch(_seachTextFieldController.text);
                 },
@@ -610,29 +602,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<Null> showAddCustomNewsSourcesDialog() async {
-    final customNewsSourceFormField = new GlobalKey<FormState>();
-    TextEditingController _textFieldController = new TextEditingController();
+    final customNewsSourceFormField = GlobalKey<FormState>();
     double screenWidth = MediaQuery.of(context).size.width;
     return showDialog<Null>(
       context: context,
       barrierDismissible: true,
-      child: new Theme(
+      child: Theme(
           data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
-          child: new AlertDialog(
-            title: new Text('Add News Provider'),
-            content: new SingleChildScrollView(
-              child: new ListBody(
+          child: AlertDialog(
+            title: Text('Add News Provider'),
+            content: SingleChildScrollView(
+              child: ListBody(
                 children: <Widget>[
-                  new SizedBox(
+                  SizedBox(
                       width: screenWidth * 0.8,
                       height: 70.0,
-                      child: new Form(
+                      child: Form(
                           key: customNewsSourceFormField,
-                          child: new TextFormField(
+                          child: TextFormField(
                             autofocus: true,
                             autocorrect: false,
                             decoration:
-                                new InputDecoration(hintText: "mynews.com"),
+                                InputDecoration(hintText: "mynews.com"),
                             onSaved: (val) => addCustomNewsSource(val),
                             onFieldSubmitted: ((val) {
                               if (val.isEmpty)
@@ -655,14 +646,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
             actions: <Widget>[
-              new FlatButton(
-                child: new Text('CLOSE'),
+              FlatButton(
+                child: Text('CLOSE'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
-              new FlatButton(
-                child: new Text('ADD'),
+              FlatButton(
+                child: Text('ADD'),
                 onPressed: () {
                   if (customNewsSourceFormField.currentState.validate())
                     customNewsSourceFormField.currentState.save();
@@ -679,19 +670,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget showNewsSourceName(String newsSource) {
     if (userDidSearch || _selectedNewsSource == US_TOP_NEWS) {
-      return new Padding(
-          padding: new EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-          child: new Opacity(
+      return Padding(
+          padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+          child: Opacity(
             opacity: 0.75,
-            child: new Text(newsSource,
-                style: new TextStyle(
+            child: Text(newsSource,
+                style: TextStyle(
                   fontSize: 14.0,
                   fontStyle: FontStyle.italic,
                 )),
           ));
     } else {
-      return new Padding(
-        padding: new EdgeInsets.all(0.0),
+      return Padding(
+        padding: EdgeInsets.all(0.0),
       );
     }
   }
@@ -790,7 +781,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     // Show refresh indicator for 3 seconds
     final Completer<Null> completer = new Completer<Null>();
-    new Timer(const Duration(seconds: 2), () {
+    new Timer(Duration(seconds: 2), () {
       completer.complete(null);
     });
     return completer.future;
@@ -840,9 +831,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget showImageIfAvailable(String imageUrl) {
     if (imageUrl != null && imageUrl != "")
-      return new Image.network(imageUrl);
+      return Image.network(imageUrl);
     else
-      return new SizedBox(width: 0.0, height: 0.0);
+      return SizedBox(width: 0.0, height: 0.0);
   }
 
   initSharedPreferences() async {
@@ -865,7 +856,7 @@ typedef void ThemeSelectionCallback(String chosenTheme);
 
 class ThemeSelection extends StatefulWidget {
   final ThemeSelectionCallback onThemeChosen;
-  String currentTheme;
+  final String currentTheme;
 
   ThemeSelection({this.onThemeChosen, this.currentTheme});
 
@@ -888,40 +879,40 @@ class _ThemeSelectionState extends State<ThemeSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return new Theme(
+    return Theme(
         data: currentTheme == "light_theme"
             ? _kGalleryLightTheme
             : _kGalleryDarkTheme,
-        child: new AlertDialog(
+        child: AlertDialog(
           actions: <Widget>[
-            new FlatButton(
-              child: new Text('CLOSE'),
+            FlatButton(
+              child: Text('CLOSE'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            new FlatButton(
-              child: new Text('SELECT'),
+            FlatButton(
+              child: Text('SELECT'),
               onPressed: () {
                 widget.onThemeChosen(themeGroupValue);
                 Navigator.of(context).pop();
               },
             ),
           ],
-          title: const Text("Choose Theme..."),
-          content: new SingleChildScrollView(
-              child: new ListBody(
+          title: Text("Choose Theme..."),
+          content: SingleChildScrollView(
+              child: ListBody(
             children: <Widget>[
-              new RadioListTile(
+              RadioListTile(
                 value: "light_theme",
-                title: const Text("Light Theme"),
+                title: Text("Light Theme"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
-              new RadioListTile(
+              RadioListTile(
                 value: "dark_theme",
-                title: const Text("Dark Theme"),
+                title: Text("Dark Theme"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
