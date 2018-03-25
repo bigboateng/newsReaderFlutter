@@ -47,6 +47,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List customNewsSources = [];
 
   bool noServerConnForNewsStories = false;
+  bool noServerConnForNewsSources = false;
   bool isValidCustomNewsSource = true;
 
   String _selectedNewsSource =
@@ -157,11 +158,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     http.Response response = await http.get(dataUrl);
 
-    Map<String, dynamic> newsSources = JSON.decode(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> newsSources = JSON.decode(response.body);
 
-    setState(() {
-      newsSourcesArray = newsSources['sources'];
-    });
+      setState(() {
+        newsSourcesArray = newsSources['sources'];
+        noServerConnForNewsSources = false;
+      });
+    } else {
+      setState(() {
+        noServerConnForNewsSources = true;
+      });
+    }
   }
 
   loadNewsStories() async {
@@ -227,9 +235,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   buildListOfNewsSources() {
-    if (newsSourcesArray == null || newsSourcesArray.length == 0) {
+    if (noServerConnForNewsSources) {
+      new Timer(
+          new Duration(seconds: 5), () => loadNewsSources());
       return new Drawer(
-          child: new Center(child: new CircularProgressIndicator()));
+          child: new Center(
+              child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new CircularProgressIndicator(),
+          new Padding(
+              padding: new EdgeInsets.all(8.0),
+              child: new Text("Retrying connection...",
+                  style: new TextStyle(fontSize: 14.0),
+                  textAlign: TextAlign.center)),
+        ],
+      )));
     } else {
       return new Drawer(
           child: new Scrollbar(
@@ -373,7 +394,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           new Padding(
             padding: new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
             child: new Text(
-                "No data received from server.\nPlease check your internet connection.",
+                "No data received from server.\nPlease check your internet connection. Reconnecting...",
                 style: new TextStyle(fontSize: 26.0),
                 textAlign: TextAlign.center),
           )
