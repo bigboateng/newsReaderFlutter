@@ -43,15 +43,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   List newsSourcesArray = [];
   List newsStoriesArray = [];
-  List favoriteNewsSources = [];
+  List<String> favoriteNewsSources = new List<String>();
   List customNewsSources = [];
 
   bool noServerConnForNewsStories = false;
   bool noServerConnForNewsSources = false;
   bool isValidCustomNewsSource = true;
 
-  String _selectedNewsSource =
-      US_TOP_NEWS; // used to highlight currently selected news source listTile
+  // used to highlight currently selected news source listTile
+  String _selectedNewsSource = US_TOP_NEWS;
 
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
   ScrollController _scrollController = new ScrollController();
@@ -229,6 +229,119 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             body: buildListOfNewsStories()));
   }
 
+  buildNewsCategories() {
+    double iconSize = 60.0;
+    double textSize = 20.0;
+    Color iconColor = Colors.black;
+    Color textColor = Colors.black;
+
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      childAspectRatio: 1.0,
+      children: <Widget>[
+        InkWell(
+          onTap: () => print("Tapped business"),
+          child: Container(
+              decoration: BoxDecoration(color: Color(0xFF69F0AE)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(),
+                  Center(
+                      child: Icon(Icons.ac_unit,
+                          size: iconSize, color: iconColor)),
+                  Text(
+                    "BUSINESS",
+                    style: TextStyle(fontSize: textSize, color: textColor),
+                  )
+                ],
+              )),
+        ),
+        InkWell(
+          onTap: () => print("Tapped tech"),
+          child: Container(
+              decoration: BoxDecoration(color: Color(0xFFFFD740)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(),
+                  Icon(Icons.add_a_photo, size: iconSize, color: iconColor),
+                  Text(
+                    "TECH",
+                    style: TextStyle(fontSize: textSize, color: textColor),
+                  )
+                ],
+              )),
+        ),
+        InkWell(
+          onTap: () => print("Tapped science"),
+          child: Container(
+              decoration: BoxDecoration(color: Color(0xFFE040FB)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(),
+                  Icon(Icons.touch_app, size: iconSize, color: iconColor),
+                  Text(
+                    "SCIENCE",
+                    style: TextStyle(fontSize: textSize, color: textColor),
+                  )
+                ],
+              )),
+        ),
+        InkWell(
+          onTap: () => print("Tapped sports"),
+          child: Container(
+              decoration: BoxDecoration(color: Color(0xFF40C4FF)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(),
+                  Icon(Icons.alarm_on, size: iconSize, color: iconColor),
+                  Text(
+                    "SPORTS",
+                    style: TextStyle(fontSize: textSize, color: textColor),
+                  )
+                ],
+              )),
+        ),
+        InkWell(
+          onTap: () => print("Tapped health"),
+          child: Container(
+              decoration: BoxDecoration(color: Color(0xFF536DFE)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(),
+                  Icon(Icons.save, size: iconSize, color: iconColor),
+                  Text(
+                    "HEALTH",
+                    style: TextStyle(fontSize: textSize, color: textColor),
+                  )
+                ],
+              )),
+        ),
+        InkWell(
+          onTap: () => print("Tapped general"),
+          child: Container(
+              decoration: BoxDecoration(color: Color(0XFFFF5252)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(),
+                  Icon(Icons.all_out, size: iconSize, color: iconColor),
+                  Text(
+                    "GENERAL",
+                    style: TextStyle(fontSize: textSize, color: textColor),
+                  )
+                ],
+              )),
+        ),
+      ],
+    );
+  }
+
   buildListOfNewsSources() {
     if (noServerConnForNewsSources) {
       Timer(Duration(seconds: 5), () => loadNewsSources());
@@ -250,8 +363,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           child: Scrollbar(
               child: ListView(
                   children:
-                      List.generate(newsSourcesArray.length + 1, (int index) {
+                      List.generate(newsSourcesArray.length + 2, (int index) {
         if (index == 0) {
+          // generate news categories
+          return buildNewsCategories();
+        } else if (index == 1) {
           // generate home listTile
           return Row(
             children: <Widget>[
@@ -264,16 +380,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         ? getAccentColor()
                         : null),
                 onPressed: () => null,
-                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                //padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                padding: EdgeInsets.fromLTRB(16.0, 24.0, 8.0, 12.0),
               ),
               Expanded(
                   child: InkWell(
-                child: Text(US_TOP_NEWS,
-                    style: TextStyle(
-                        fontSize: 20.0,
-                        color: _selectedNewsSource == US_TOP_NEWS
-                            ? getAccentColor()
-                            : null)),
+                //padding: EdgeInsets.fromLTRB(8.0, 24.0, 16.0, 12.0),
+                child: Padding(
+                    padding: EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 12.0),
+                    child: Text(US_TOP_NEWS,
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            color: _selectedNewsSource == US_TOP_NEWS
+                                ? getAccentColor()
+                                : null))),
+
                 onTap: () {
                   appBarTitle = US_TOP_NEWS;
                   Navigator.pop(context);
@@ -284,7 +405,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ],
           );
         } else {
-          index -= 1;
+          index -= 2;
           String newsSource = newsSourcesArray[index]['name'];
           return Row(
             children: <Widget>[
@@ -369,15 +490,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (!isValidCustomNewsSource) {
       return Center(
           child: Padding(
-              padding:
-                  EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
               child: Text(
                   "The news provider '$_selectedNewsSource' was not recognized.",
                   style: TextStyle(fontSize: 26.0),
                   textAlign: TextAlign.center)));
     } else if (noServerConnForNewsStories) {
-      Timer(
-          Duration(seconds: 6), () => setState(() => refreshNewsStories()));
+      Timer(Duration(seconds: 6), () => setState(() => refreshNewsStories()));
       return Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -433,8 +552,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 children: <Widget>[
                                   showImageIfAvailable(imageUrl),
                                   Padding(
-                                    padding: EdgeInsets.fromLTRB(
-                                        8.0, 8.0, 8.0, 8.0),
+                                    padding:
+                                        EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                                     child: Text(title,
                                         textAlign: TextAlign.left,
                                         style: TextStyle(
@@ -574,8 +693,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       autofocus: true,
                       maxLength: 50,
                       maxLengthEnforced: true,
-                      decoration:
-                          InputDecoration(icon: Icon(Icons.search)),
+                      decoration: InputDecoration(icon: Icon(Icons.search)),
                       onSubmitted: (asd) =>
                           beginNewsSearch(_seachTextFieldController.text),
                     ),
@@ -622,8 +740,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           child: TextFormField(
                             autofocus: true,
                             autocorrect: false,
-                            decoration:
-                                InputDecoration(hintText: "mynews.com"),
+                            decoration: InputDecoration(hintText: "mynews.com"),
                             onSaved: (val) => addCustomNewsSource(val),
                             onFieldSubmitted: ((val) {
                               if (val.isEmpty)
