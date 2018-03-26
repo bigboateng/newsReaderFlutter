@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List newsSourcesArray = [];
   List newsStoriesArray = [];
   List<String> favoriteNewsSources = new List<String>();
-  List customNewsSources = [];
+  List<String> customNewsSources = new List<String>();
 
   bool noServerConnForNewsStories = false;
   bool noServerConnForNewsSources = false;
@@ -772,8 +772,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               FlatButton(
                 child: Text('ADD'),
                 onPressed: () {
-                  if (customNewsSourceFormField.currentState.validate())
+                  if (customNewsSourceFormField.currentState.validate()) {
                     customNewsSourceFormField.currentState.save();
+                    Navigator.of(context).pop();
+                  }
                 },
               ),
             ],
@@ -784,6 +786,29 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /*
   * HELPER METHODS BEGIN
   */
+
+  void addCustomNewsSource(String customNewsSource) {
+    customNewsSources.add(customNewsSource);
+
+    // save list to disk
+    prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
+
+    // Build map to add to newsSourcesArray
+    Map<String, String> customNewsSourceMap = {
+      'name': customNewsSource,
+      'id': customNewsSource.toLowerCase()
+    };
+
+    newsSourcesArray.add(customNewsSourceMap);
+    newsSourceId = customNewsSourceMap['id'];
+    appBarTitle = customNewsSourceMap['name'];
+    _selectedNewsSource = customNewsSourceMap['name'];
+
+    sortNewsSourcesArray();
+
+    loadNewsStoriesFromCustomSource();
+
+  }
 
   Widget showNewsSourceName(String newsSource) {
     if (userDidSearch || _selectedNewsSource == US_TOP_NEWS) {
@@ -802,31 +827,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         padding: EdgeInsets.all(0.0),
       );
     }
-  }
-
-  void addCustomNewsSource(String customNewsSource) {
-    customNewsSources.add(customNewsSource);
-
-    // save list to disk
-    prefs.setStringList(CUSTOM_NEWS_SOURCES, customNewsSources);
-
-    // Build map to add to newsSourcesArray
-    Map<String, String> customNewsSourceMap = {
-      'name': customNewsSource,
-      'id': customNewsSource.toLowerCase()
-    };
-
-    Navigator.of(context).pop();
-    newsSourcesArray.add(customNewsSourceMap);
-    newsSourceId = customNewsSourceMap['id'];
-    appBarTitle = customNewsSourceMap['name'];
-    _selectedNewsSource = customNewsSourceMap['name'];
-
-    sortNewsSourcesArray();
-
-    setState(() {
-      loadNewsStoriesFromCustomSource();
-    });
   }
 
   beginNewsSearch(String keyword) {
