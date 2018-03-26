@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   bool shouldShowHelpText = false;
   bool userDidSearch = false;
+  bool userChoseCategory = false;
   bool useDarkTheme = false;
   String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
@@ -99,6 +100,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsStoriesFromCustomSource() async {
     userDidSearch = false;
+    userChoseCategory = false;
+
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl = "https://newsapi.org/v2/everything?domains=" +
@@ -125,6 +128,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadTopUsHeadLines() async {
     userDidSearch = false;
+    userChoseCategory = false;
+
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl =
@@ -147,6 +152,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsSources() async {
     userDidSearch = false;
+    userChoseCategory = false;
 
     String dataUrl =
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -169,6 +175,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsStories() async {
     userDidSearch = false;
+    userChoseCategory = false;
+
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl = "https://newsapi.org/v2/top-headlines?sources=" +
@@ -192,6 +200,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   loadNewsStoriesFromSearch(String keyWord) async {
     userDidSearch = true;
+    userChoseCategory = false;
+
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String searchUrl = "https://newsapi.org/v2/everything?q=" +
@@ -199,6 +209,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         "&language=en&sortBy=publishedAt&apiKey=a30edf50cbbb48049945142f004c36c3";
 
     http.Response response = await http.get(searchUrl);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> newsStories = JSON.decode(response.body);
+
+      setState(() {
+        noServerConnForNewsStories = false;
+        newsStoriesArray = newsStories['articles'];
+      });
+    } else {
+      setState(() {
+        noServerConnForNewsStories = true;
+      });
+    }
+  }
+
+  loadNewsStoriesFromCategory() async {
+    userDidSearch = false;
+    userChoseCategory = true;
+
+    if (newsStoriesArray != null) newsStoriesArray.clear();
+
+    String dataUrl =
+        "https://newsapi.org/v2/top-headlines?country=us&category=" +
+            _selectedNewsSource +
+            "&apiKey=a30edf50cbbb48049945142f004c36c3";
+
+    http.Response response = await http.get(dataUrl);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> newsStories = JSON.decode(response.body);
@@ -241,7 +278,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       childAspectRatio: 1.0,
       children: <Widget>[
         InkWell(
-          onTap: () => print("Tapped business"),
+          onTap: () {
+            Navigator.pop(context);
+            newsSourceId = "business";
+            _selectedNewsSource = "business";
+            appBarTitle = "Business";
+            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+          },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFF69F0AE)),
               child: Column(
@@ -259,7 +302,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               )),
         ),
         InkWell(
-          onTap: () => print("Tapped tech"),
+          onTap: () {
+            Navigator.pop(context);
+            newsSourceId = "technology";
+            _selectedNewsSource = "technology";
+            appBarTitle = "Tech";
+            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+          },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFFFFD740)),
               child: Column(
@@ -275,7 +324,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               )),
         ),
         InkWell(
-          onTap: () => print("Tapped science"),
+          onTap: () {
+            Navigator.pop(context);
+            newsSourceId = "science";
+            _selectedNewsSource = "science";
+            appBarTitle = "Science";
+            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+          },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFFE040FB)),
               child: Column(
@@ -291,7 +346,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               )),
         ),
         InkWell(
-          onTap: () => print("Tapped sports"),
+          onTap: () {
+            Navigator.pop(context);
+            newsSourceId = "sports";
+            _selectedNewsSource = "sports";
+            appBarTitle = "Sports";
+            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+          },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFF40C4FF)),
               child: Column(
@@ -307,7 +368,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               )),
         ),
         InkWell(
-          onTap: () => print("Tapped health"),
+          onTap: () {
+            Navigator.pop(context);
+            newsSourceId = "health";
+            _selectedNewsSource = "health";
+            appBarTitle = "Health";
+            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+          },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFF536DFE)),
               child: Column(
@@ -323,7 +390,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               )),
         ),
         InkWell(
-          onTap: () => print("Tapped general"),
+          onTap: () {
+            Navigator.pop(context);
+            newsSourceId = "general";
+            _selectedNewsSource = "general";
+            appBarTitle = "General";
+            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+          },
           child: Container(
               decoration: BoxDecoration(color: Color(0XFFFF5252)),
               child: Column(
@@ -513,95 +586,87 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ));
     } else {
       return Scrollbar(
-        child: new RefreshIndicator(
-            displacement: 80.0,
-            onRefresh: () => refreshNewsStories(),
-            child: ListView(
-              controller: _scrollController,
-              children: new List.generate(newsStoriesArray.length, (int index) {
-                String title = newsStoriesArray[index]['title'] == null
-                    ? ""
-                    : newsStoriesArray[index]['title'];
-                String newsText = newsStoriesArray[index]['description'] == null
-                    ? ""
-                    : newsStoriesArray[index]['description'];
-                String url = newsStoriesArray[index]['url'] == null
-                    ? ""
-                    : newsStoriesArray[index]['url'];
-                String imageUrl = newsStoriesArray[index]['urlToImage'] == null
-                    ? ""
-                    : newsStoriesArray[index]['urlToImage'];
-                String dateTime = newsStoriesArray[index]['publishedAt'] == null
-                    ? ""
-                    : newsStoriesArray[index]['publishedAt'];
-                String newsSourceName =
-                    newsStoriesArray[index]['source']['name'] == null
-                        ? "No source"
-                        : newsStoriesArray[index]['source']['name'];
+        child: ListView(
+          controller: _scrollController,
+          children: new List.generate(newsStoriesArray.length, (int index) {
+            String title = newsStoriesArray[index]['title'] == null
+                ? ""
+                : newsStoriesArray[index]['title'];
+            String newsText = newsStoriesArray[index]['description'] == null
+                ? ""
+                : newsStoriesArray[index]['description'];
+            String url = newsStoriesArray[index]['url'] == null
+                ? ""
+                : newsStoriesArray[index]['url'];
+            String imageUrl = newsStoriesArray[index]['urlToImage'] == null
+                ? ""
+                : newsStoriesArray[index]['urlToImage'];
+            String dateTime = newsStoriesArray[index]['publishedAt'] == null
+                ? ""
+                : newsStoriesArray[index]['publishedAt'];
+            String newsSourceName =
+                newsStoriesArray[index]['source']['name'] == null
+                    ? "No source"
+                    : newsStoriesArray[index]['source']['name'];
 
-                String formattedDate = formatDateForUi(dateTime);
+            String formattedDate = formatDateForUi(dateTime);
 
-                return Padding(
-                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                    child: InkWell(
-                        onTap: () => _launchURL(url),
-                        child: Card(
-                            elevation: 5.0,
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  showImageIfAvailable(imageUrl),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                                    child: Text(title,
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                            fontSize: 26.0,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                  showNewsSourceName(newsSourceName),
-                                  Padding(
-                                    padding: EdgeInsets.fromLTRB(
-                                        16.0, 8.0, 16.0, 8.0),
-                                    child: Text(newsText,
-                                        style: TextStyle(fontSize: 16.0)),
-                                  ),
-                                  Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                          16.0, 16.0, 16.0, 8.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            child: Text(formattedDate,
-                                                style: TextStyle(
-                                                    fontStyle:
-                                                        FontStyle.italic)),
+            return Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                child: InkWell(
+                    onTap: () => _launchURL(url),
+                    child: Card(
+                        elevation: 5.0,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              showImageIfAvailable(imageUrl),
+                              Padding(
+                                padding:
+                                    EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                                child: Text(title,
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        fontSize: 26.0,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              showNewsSourceName(newsSourceName),
+                              Padding(
+                                padding:
+                                    EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                                child: Text(newsText,
+                                    style: TextStyle(fontSize: 16.0)),
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      16.0, 16.0, 16.0, 8.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Text(formattedDate,
+                                            style: TextStyle(
+                                                fontStyle: FontStyle.italic)),
+                                      ),
+                                      IconButton(
+                                          icon: Icon(
+                                            Icons.share,
+                                            color: Colors.blue,
                                           ),
-                                          IconButton(
-                                              icon: Icon(
-                                                Icons.share,
-                                                color: Colors.blue,
-                                              ),
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0.0, 0.0, 16.0, 0.0),
-                                              iconSize: 32.0,
-                                              onPressed: () => sharing.share(
-                                                  '"' +
-                                                      title +
-                                                      '"' +
-                                                      " " +
-                                                      url)),
-                                          Text("READ MORE",
-                                              style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: Colors.blue,
-                                                  fontWeight: FontWeight.bold))
-                                        ],
-                                      ))
-                                ]))));
-              }),
-            )),
+                                          padding: EdgeInsets.fromLTRB(
+                                              0.0, 0.0, 16.0, 0.0),
+                                          iconSize: 32.0,
+                                          onPressed: () => sharing.share(
+                                              '"' + title + '"' + " " + url)),
+                                      Text("READ MORE",
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold))
+                                    ],
+                                  ))
+                            ]))));
+          }),
+        ),
       );
     }
   }
@@ -807,7 +872,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     sortNewsSourcesArray();
 
     loadNewsStoriesFromCustomSource();
-
   }
 
   Widget showNewsSourceName(String newsSource) {
@@ -884,8 +948,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  Future refreshNewsStories() async {
-    if (userDidSearch) // refresh a search result
+  refreshNewsStories() async {
+    if (userChoseCategory)
+      loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+    else if (userDidSearch) // refresh a search result
       loadNewsStoriesFromSearch(_seachTextFieldController.text)
           .then((asd) => scrollToTop());
     else if (customNewsSources.contains(
@@ -897,11 +963,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       loadNewsStories().then((asd) => scrollToTop());
 
     // Show refresh indicator for 3 seconds
-    final Completer<Null> completer = new Completer<Null>();
-    new Timer(Duration(seconds: 2), () {
-      completer.complete(null);
-    });
-    return completer.future;
+//    final Completer<Null> completer = new Completer<Null>();
+//    new Timer(Duration(seconds: 2), () {
+//      completer.complete(null);
+//    });
+//    return completer.future;
   }
 
   void scrollToTop() {
