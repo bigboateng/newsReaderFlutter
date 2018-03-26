@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 children: <Widget>[
                   Container(),
                   Center(
-                      child: Icon(Icons.ac_unit,
+                      child: Icon(Icons.attach_money,
                           size: iconSize, color: iconColor)),
                   Text(
                     "BUSINESS",
@@ -315,7 +315,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.add_a_photo, size: iconSize, color: iconColor),
+                  Icon(Icons.phonelink_ring, size: iconSize, color: iconColor),
                   Text(
                     "TECH",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -337,7 +337,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.touch_app, size: iconSize, color: iconColor),
+                  Icon(Icons.extension, size: iconSize, color: iconColor),
                   Text(
                     "SCIENCE",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -359,7 +359,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.alarm_on, size: iconSize, color: iconColor),
+                  Icon(Icons.fitness_center, size: iconSize, color: iconColor),
                   Text(
                     "SPORTS",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -381,7 +381,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.save, size: iconSize, color: iconColor),
+                  Icon(Icons.favorite_border, size: iconSize, color: iconColor),
                   Text(
                     "HEALTH",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -392,9 +392,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         InkWell(
           onTap: () {
             Navigator.pop(context);
-            newsSourceId = "general";
-            _selectedNewsSource = "general";
-            appBarTitle = "General";
+            newsSourceId = "entertainment";
+            _selectedNewsSource = "entertainment";
+            appBarTitle = "Showbiz";
             loadNewsStoriesFromCategory().then((asd) => scrollToTop());
           },
           child: Container(
@@ -403,9 +403,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.all_out, size: iconSize, color: iconColor),
+                  Icon(Icons.local_movies, size: iconSize, color: iconColor),
                   Text(
-                    "GENERAL",
+                    "SHOWBIZ",
                     style: TextStyle(fontSize: textSize, color: textColor),
                   )
                 ],
@@ -680,7 +680,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           itemBuilder: (BuildContext context) => <PopupMenuItem<ListTile>>[
                 PopupMenuItem<ListTile>(
                     child: ListTile(
-                  leading: Icon(Icons.format_paint),
+                  leading: Icon(Icons.palette),
                   title: Text(THEMES),
                   onTap: () {
                     Navigator.of(context).pop();
