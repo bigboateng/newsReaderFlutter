@@ -901,6 +901,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   beginNewsSearch(String keyword) {
     if (keyword.length > 0) {
       appBarTitle = "'" + keyword + "'";
+      _selectedNewsSource = appBarTitle;
+      newsSourceId = appBarTitle;
       loadNewsStoriesFromSearch(keyword);
       Navigator.of(context).pop();
     }
