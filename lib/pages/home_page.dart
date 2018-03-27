@@ -880,7 +880,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget showNewsSourceName(String newsSource) {
-    if (userDidSearch || _selectedNewsSource == US_TOP_NEWS) {
+    if (userDidSearch || _selectedNewsSource == US_TOP_NEWS || userChoseCategory) {
       return Padding(
           padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
           child: Opacity(
