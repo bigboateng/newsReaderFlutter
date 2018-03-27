@@ -129,6 +129,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   loadTopUsHeadLines() async {
     userDidSearch = false;
     userChoseCategory = false;
+    isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
@@ -153,6 +154,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   loadNewsSources() async {
     userDidSearch = false;
     userChoseCategory = false;
+    isValidCustomNewsSource = true;
 
     String dataUrl =
         "https://newsapi.org/v2/sources?language=en&country=us&apiKey=a30edf50cbbb48049945142f004c36c3";
@@ -176,6 +178,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   loadNewsStories() async {
     userDidSearch = false;
     userChoseCategory = false;
+    isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
@@ -201,6 +204,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   loadNewsStoriesFromSearch(String keyWord) async {
     userDidSearch = true;
     userChoseCategory = false;
+    isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
@@ -227,6 +231,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   loadNewsStoriesFromCategory() async {
     userDidSearch = false;
     userChoseCategory = true;
+    isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
