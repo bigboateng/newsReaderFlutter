@@ -22,6 +22,8 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => new _HomePageState();
 }
 
+enum LastUserAction { search, categories, customNews, news, usTopNews }
+
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
@@ -32,29 +34,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String SEARCH = "Search";
   static const String PROVIDER = "Provider";
 
+  String appBarTitle = US_TOP_NEWS;
+  String newsSourceId = "";
   String currentTheme = "light_theme";
+
   DateTime timeOfAppPaused;
 
   bool shouldShowHelpText = false;
-  bool userDidSearch = false;
-  bool userChoseCategory = false;
   bool useDarkTheme = false;
-  String appBarTitle = US_TOP_NEWS;
-  String newsSourceId = "";
+  bool noServerConnForNewsStories = false;
+  bool noServerConnForNewsSources = false;
+  bool isValidCustomNewsSource = true;
 
   List newsSourcesArray = [];
   List newsStoriesArray = [];
   List<String> favoriteNewsSources = new List<String>();
   List<String> customNewsSources = new List<String>();
 
-  bool noServerConnForNewsStories = false;
-  bool noServerConnForNewsSources = false;
-  bool isValidCustomNewsSource = true;
+  LastUserAction lastUserAction = LastUserAction.usTopNews;
 
   // used to highlight currently selected news source listTile
   String _selectedNewsSource = US_TOP_NEWS;
 
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
   ScrollController _scrollController = new ScrollController();
   TextEditingController _seachTextFieldController = new TextEditingController();
   SharedPreferences prefs;
@@ -99,9 +103,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
    */
 
   loadNewsStoriesFromCustomSource() async {
-    userDidSearch = false;
-    userChoseCategory = false;
-
     if (newsStoriesArray != null) newsStoriesArray.clear();
 
     String dataUrl = "https://newsapi.org/v2/everything?domains=" +
@@ -127,8 +128,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   loadTopUsHeadLines() async {
-    userDidSearch = false;
-    userChoseCategory = false;
     isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
@@ -152,8 +151,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   loadNewsSources() async {
-    userDidSearch = false;
-    userChoseCategory = false;
     isValidCustomNewsSource = true;
 
     String dataUrl =
@@ -176,8 +173,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   loadNewsStories() async {
-    userDidSearch = false;
-    userChoseCategory = false;
     isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
@@ -202,8 +197,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   loadNewsStoriesFromSearch(String keyWord) async {
-    userDidSearch = true;
-    userChoseCategory = false;
     isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
@@ -229,8 +222,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   loadNewsStoriesFromCategory() async {
-    userDidSearch = false;
-    userChoseCategory = true;
     isValidCustomNewsSource = true;
 
     if (newsStoriesArray != null) newsStoriesArray.clear();
@@ -288,7 +279,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "business";
             _selectedNewsSource = "business";
             appBarTitle = "Business";
-            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            lastUserAction = LastUserAction.categories;
+            _refreshIndicatorKey.currentState.show();
           },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFF69F0AE)),
@@ -312,7 +304,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "technology";
             _selectedNewsSource = "technology";
             appBarTitle = "Tech";
-            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            //userDidSearch = true;
+            lastUserAction = LastUserAction.categories;
+            _refreshIndicatorKey.currentState.show();
           },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFFFFD740)),
@@ -334,7 +329,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "science";
             _selectedNewsSource = "science";
             appBarTitle = "Science";
-            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            lastUserAction = LastUserAction.categories;
+            _refreshIndicatorKey.currentState.show();
           },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFFE040FB)),
@@ -356,7 +353,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "sports";
             _selectedNewsSource = "sports";
             appBarTitle = "Sports";
-            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            lastUserAction = LastUserAction.categories;
+            _refreshIndicatorKey.currentState.show();
           },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFF40C4FF)),
@@ -378,7 +377,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "health";
             _selectedNewsSource = "health";
             appBarTitle = "Health";
-            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            lastUserAction = LastUserAction.categories;
+            _refreshIndicatorKey.currentState.show();
           },
           child: Container(
               decoration: BoxDecoration(color: Color(0xFF536DFE)),
@@ -400,7 +401,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "entertainment";
             _selectedNewsSource = "entertainment";
             appBarTitle = "Showbiz";
-            loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
+            lastUserAction = LastUserAction.categories;
+            _refreshIndicatorKey.currentState.show();
           },
           child: Container(
               decoration: BoxDecoration(color: Color(0XFFFF5252)),
@@ -458,7 +461,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         ? getAccentColor()
                         : null),
                 onPressed: () => null,
-                //padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                 padding: EdgeInsets.fromLTRB(16.0, 24.0, 8.0, 12.0),
               ),
               Expanded(
@@ -475,9 +477,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                 onTap: () {
                   appBarTitle = US_TOP_NEWS;
+                  lastUserAction = LastUserAction.usTopNews;
                   Navigator.pop(context);
                   _selectedNewsSource = US_TOP_NEWS;
-                  loadTopUsHeadLines().then((asd) => scrollToTop());
+                  _refreshIndicatorKey.currentState.show();
                 },
               ))
             ],
@@ -530,11 +533,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     appBarTitle = newsSourcesArray[index]['name'];
                     _selectedNewsSource = newsSourcesArray[index]['name'];
 
-                    if (customNewsSources.contains(newsSource))
-                      loadNewsStoriesFromCustomSource()
-                          .then((asd) => scrollToTop());
-                    else
-                      loadNewsStories().then((asd) => scrollToTop());
+                    if (customNewsSources.contains(newsSource)) {
+                      lastUserAction = LastUserAction.customNews;
+                      _refreshIndicatorKey.currentState.show();
+                    } else {
+                      lastUserAction = LastUserAction.news;
+                      _refreshIndicatorKey.currentState.show();
+                    }
                   },
                 ),
               ),
@@ -574,7 +579,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   style: TextStyle(fontSize: 26.0),
                   textAlign: TextAlign.center)));
     } else if (noServerConnForNewsStories) {
-      Timer(Duration(seconds: 6), () => setState(() => refreshNewsStories()));
+      Timer(Duration(seconds: 6), () => refreshNewsStories());
       return Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -591,87 +596,95 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ));
     } else {
       return Scrollbar(
-        child: ListView(
-          controller: _scrollController,
-          children: new List.generate(newsStoriesArray.length, (int index) {
-            String title = newsStoriesArray[index]['title'] == null
-                ? ""
-                : newsStoriesArray[index]['title'];
-            String newsText = newsStoriesArray[index]['description'] == null
-                ? ""
-                : newsStoriesArray[index]['description'];
-            String url = newsStoriesArray[index]['url'] == null
-                ? ""
-                : newsStoriesArray[index]['url'];
-            String imageUrl = newsStoriesArray[index]['urlToImage'] == null
-                ? ""
-                : newsStoriesArray[index]['urlToImage'];
-            String dateTime = newsStoriesArray[index]['publishedAt'] == null
-                ? ""
-                : newsStoriesArray[index]['publishedAt'];
-            String newsSourceName =
-                newsStoriesArray[index]['source']['name'] == null
-                    ? "No source"
-                    : newsStoriesArray[index]['source']['name'];
+        child: RefreshIndicator(
+            onRefresh: refreshNewsStories,
+            key: _refreshIndicatorKey,
+            child: ListView(
+              controller: _scrollController,
+              children: new List.generate(newsStoriesArray.length, (int index) {
+                String title = newsStoriesArray[index]['title'] == null
+                    ? ""
+                    : newsStoriesArray[index]['title'];
+                String newsText = newsStoriesArray[index]['description'] == null
+                    ? ""
+                    : newsStoriesArray[index]['description'];
+                String url = newsStoriesArray[index]['url'] == null
+                    ? ""
+                    : newsStoriesArray[index]['url'];
+                String imageUrl = newsStoriesArray[index]['urlToImage'] == null
+                    ? ""
+                    : newsStoriesArray[index]['urlToImage'];
+                String dateTime = newsStoriesArray[index]['publishedAt'] == null
+                    ? ""
+                    : newsStoriesArray[index]['publishedAt'];
+                String newsSourceName =
+                    newsStoriesArray[index]['source']['name'] == null
+                        ? "No source"
+                        : newsStoriesArray[index]['source']['name'];
 
-            String formattedDate = formatDateForUi(dateTime);
+                String formattedDate = formatDateForUi(dateTime);
 
-            return Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                child: InkWell(
-                    onTap: () => _launchURL(url),
-                    child: Card(
-                        elevation: 5.0,
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              showImageIfAvailable(imageUrl),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                                child: Text(title,
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                        fontSize: 26.0,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                              showNewsSourceName(newsSourceName),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                                child: Text(newsText,
-                                    style: TextStyle(fontSize: 16.0)),
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      16.0, 16.0, 16.0, 8.0),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: Text(formattedDate,
-                                            style: TextStyle(
-                                                fontStyle: FontStyle.italic)),
-                                      ),
-                                      IconButton(
-                                          icon: Icon(
-                                            Icons.share,
-                                            color: Colors.blue,
+                return Padding(
+                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                    child: InkWell(
+                        onTap: () => _launchURL(url),
+                        child: Card(
+                            elevation: 5.0,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  showImageIfAvailable(imageUrl),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                                    child: Text(title,
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                            fontSize: 26.0,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                  showNewsSourceName(newsSourceName),
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                        16.0, 8.0, 16.0, 8.0),
+                                    child: Text(newsText,
+                                        style: TextStyle(fontSize: 16.0)),
+                                  ),
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          16.0, 16.0, 16.0, 8.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Text(formattedDate,
+                                                style: TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic)),
                                           ),
-                                          padding: EdgeInsets.fromLTRB(
-                                              0.0, 0.0, 16.0, 0.0),
-                                          iconSize: 32.0,
-                                          onPressed: () => sharing.share(
-                                              '"' + title + '"' + " " + url)),
-                                      Text("READ MORE",
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.bold))
-                                    ],
-                                  ))
-                            ]))));
-          }),
-        ),
+                                          IconButton(
+                                              icon: Icon(
+                                                Icons.share,
+                                                color: Colors.blue,
+                                              ),
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 0.0, 16.0, 0.0),
+                                              iconSize: 32.0,
+                                              onPressed: () => sharing.share(
+                                                  '"' +
+                                                      title +
+                                                      '"' +
+                                                      " " +
+                                                      url)),
+                                          Text("READ MORE",
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold))
+                                        ],
+                                      ))
+                                ]))));
+              }),
+            )),
       );
     }
   }
@@ -708,6 +721,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   onTap: () {
                     Navigator.of(context).pop();
                     showAddCustomNewsSourcesDialog();
+                  },
+                )),
+                PopupMenuItem<ListTile>(
+                    child: ListTile(
+                  leading: Icon(Icons.cloud),
+                  title: Text("Refresh"),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _refreshIndicatorKey.currentState.show();
                   },
                 )),
               ],
@@ -787,6 +809,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ],
           )),
     );
+  }
+
+  beginNewsSearch(String keyword) {
+    if (keyword.length > 0) {
+      appBarTitle = "'" + keyword + "'";
+      _selectedNewsSource = appBarTitle;
+      newsSourceId = appBarTitle;
+      //loadNewsStoriesFromSearch(keyword);
+      lastUserAction = LastUserAction.search;
+      _refreshIndicatorKey.currentState.show();
+      Navigator.of(context).pop();
+    }
   }
 
   Future<Null> showAddCustomNewsSourcesDialog() async {
@@ -876,11 +910,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     sortNewsSourcesArray();
 
-    loadNewsStoriesFromCustomSource();
+    //loadNewsStoriesFromCustomSource();
+    lastUserAction = LastUserAction.customNews;
+    _refreshIndicatorKey.currentState.show();
   }
 
   Widget showNewsSourceName(String newsSource) {
-    if (userDidSearch || _selectedNewsSource == US_TOP_NEWS || userChoseCategory) {
+    if (lastUserAction == LastUserAction.search ||
+        lastUserAction == LastUserAction.usTopNews ||
+        lastUserAction == LastUserAction.categories) {
       return Padding(
           padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
           child: Opacity(
@@ -895,16 +933,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       return Padding(
         padding: EdgeInsets.all(0.0),
       );
-    }
-  }
-
-  beginNewsSearch(String keyword) {
-    if (keyword.length > 0) {
-      appBarTitle = "'" + keyword + "'";
-      _selectedNewsSource = appBarTitle;
-      newsSourceId = appBarTitle;
-      loadNewsStoriesFromSearch(keyword);
-      Navigator.of(context).pop();
     }
   }
 
@@ -955,26 +983,38 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  refreshNewsStories() async {
-    if (userChoseCategory)
-      loadNewsStoriesFromCategory().then((asd) => scrollToTop());
-    else if (userDidSearch) // refresh a search result
-      loadNewsStoriesFromSearch(_seachTextFieldController.text)
-          .then((asd) => scrollToTop());
-    else if (customNewsSources.contains(
-        _selectedNewsSource)) // refresh news from a custom news source
-      loadNewsStoriesFromCustomSource().then((asd) => scrollToTop());
-    else if (_selectedNewsSource == US_TOP_NEWS) // refresh the homepage news
-      loadTopUsHeadLines().then((asd) => scrollToTop());
-    else // refresh news from the selected standard source
-      loadNewsStories().then((asd) => scrollToTop());
+  Future<Null> refreshNewsStories() {
+    Completer<Null> completer = new Completer<Null>();
 
-    // Show refresh indicator for 3 seconds
-//    final Completer<Null> completer = new Completer<Null>();
-//    new Timer(Duration(seconds: 2), () {
-//      completer.complete(null);
-//    });
-//    return completer.future;
+    switch (lastUserAction) {
+      case LastUserAction.categories:
+        loadNewsStoriesFromCategory()
+            .then((asd) => completer.complete())
+            .then((asd) => scrollToTop());
+        break;
+      case LastUserAction.usTopNews:
+        loadTopUsHeadLines()
+            .then((asd) => completer.complete())
+            .then((asd) => scrollToTop());
+        break;
+      case LastUserAction.search:
+        loadNewsStoriesFromSearch(_seachTextFieldController.text)
+            .then((asd) => completer.complete())
+            .then((asd) => scrollToTop());
+        break;
+      case LastUserAction.customNews:
+        loadNewsStoriesFromCustomSource()
+            .then((asd) => completer.complete())
+            .then((asd) => scrollToTop());
+        break;
+      case LastUserAction.news:
+        loadNewsStories()
+            .then((asd) => completer.complete())
+            .then((asd) => scrollToTop());
+        break;
+    }
+
+    return completer.future;
   }
 
   void scrollToTop() {
