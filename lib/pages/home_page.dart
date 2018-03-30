@@ -14,6 +14,8 @@ class HomePage extends StatefulWidget {
 
 enum LastUserAction { search, categories, customNews, news, usTopNews }
 
+enum MyThemes {defaultDark, defaultLight, darkTeal, darkCyan, darkLime, darkGreen, darkAmber, darkPink}
+
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
   static const String CUSTOM_NEWS_SOURCES = "CUSTOM_NEWS_SOURCES";
@@ -881,6 +883,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   * HELPER METHODS BEGIN
   */
 
+  ThemeData getCurrentTheme() {
+    switch(currentTheme){
+      case:
+    }
+  }
+
+
   void addCustomNewsSource(String customNewsSource) {
     customNewsSources.add(customNewsSource);
 
@@ -1116,6 +1125,12 @@ final ThemeData darkPink = new ThemeData(
 
 const String DEFAULT_LIGHT_THEME = "default_light";
 const String DEFAULT_DARK_THEME = "default_dark";
+const String DARK_TEAL_THEME = "dark_teal";
+const String DARK_CYAN_THEME = "dark_cyan";
+const String DARK_LIME_THEME = "dark_lime";
+const String DARK_GREEN_THEME = "dark_green";
+const String DARK_AMBER_THEME = "dark_amber";
+const String DARK_PINK_THEME = "dark_pink";
 
 typedef void ThemeSelectionCallback(String chosenTheme);
 
@@ -1181,7 +1196,49 @@ class _ThemeSelectionState extends State<ThemeSelection> {
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
-              )
+              ),
+              RadioListTile(
+                value: DARK_TEAL_THEME,
+                title: Text("Dark Teal"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
+              RadioListTile(
+                value: DARK_CYAN_THEME,
+                title: Text("Dark Cyan"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
+              RadioListTile(
+                value: DARK_LIME_THEME,
+                title: Text("Dark Lime"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
+              RadioListTile(
+                value: DARK_GREEN_THEME,
+                title: Text("Dark Green"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
+              RadioListTile(
+                value: DARK_AMBER_THEME,
+                title: Text("Dark Amber"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
+              RadioListTile(
+                value: DARK_PINK_THEME,
+                title: Text("Dark Pink"),
+                groupValue: themeGroupValue,
+                onChanged: (value) =>
+                    setState(() => this.themeGroupValue = value),
+              ),
             ],
           )),
         ));
