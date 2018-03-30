@@ -7,16 +7,6 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share/share.dart' as sharing;
 
-final ThemeData _kGalleryDarkTheme = new ThemeData(
-    brightness: Brightness.dark,
-    primarySwatch: Colors.blue,
-    accentColor: Colors.tealAccent);
-
-final ThemeData _kGalleryLightTheme = new ThemeData(
-    brightness: Brightness.light,
-    primarySwatch: Colors.blue,
-    accentColor: Colors.blue);
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => new _HomePageState();
@@ -254,7 +244,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+        data: useDarkTheme ? defaultDarkTheme : defaultLightTheme,
         child: Scaffold(
             key: _scaffoldKey,
             appBar: buildAppBar(),
@@ -454,7 +444,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             children: <Widget>[
               new IconButton(
                 color: _selectedNewsSource == US_TOP_NEWS
-                    ? _kGalleryDarkTheme.accentColor
+                    ? defaultDarkTheme.accentColor
                     : null,
                 icon: Icon(Icons.home,
                     color: _selectedNewsSource == US_TOP_NEWS
@@ -725,7 +715,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 )),
                 PopupMenuItem<ListTile>(
                     child: ListTile(
-                  leading: Icon(Icons.cloud),
+                  leading: Icon(Icons.refresh),
                   title: Text("Refresh"),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -771,7 +761,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       context: context,
       barrierDismissible: true,
       child: Theme(
-          data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+          data: useDarkTheme ? defaultDarkTheme : defaultLightTheme,
           child: AlertDialog(
             title: Text('Search For News Articles...'),
             content: SingleChildScrollView(
@@ -830,7 +820,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       context: context,
       barrierDismissible: true,
       child: Theme(
-          data: useDarkTheme ? _kGalleryDarkTheme : _kGalleryLightTheme,
+          data: useDarkTheme ? defaultDarkTheme : defaultLightTheme,
           child: AlertDialog(
             title: Text('Add News Provider'),
             content: SingleChildScrollView(
@@ -1072,15 +1062,60 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Color getAccentColor() {
     if (useDarkTheme)
-      return _kGalleryDarkTheme.accentColor;
+      return defaultDarkTheme.accentColor;
     else
-      return _kGalleryLightTheme.accentColor;
+      return defaultLightTheme.accentColor;
   }
 }
 
 /*
   Classes that holds the state of theme selection dialog
  */
+
+final ThemeData defaultLightTheme = new ThemeData(
+    brightness: Brightness.light,
+    primarySwatch: Colors.blue,
+    accentColor: Colors.blue);
+
+final ThemeData defaultDarkTheme = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.blue,
+    accentColor: Colors.tealAccent);
+
+final ThemeData darkTeal = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.teal,
+    accentColor: Colors.tealAccent);
+
+final ThemeData darkCyan = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.cyan,
+    accentColor: Colors.cyanAccent);
+
+final ThemeData darkLime = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.lime,
+    accentColor: Colors.limeAccent);
+
+final ThemeData darkGreen = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.green,
+    accentColor: Colors.greenAccent);
+
+final ThemeData darkAmber = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.amber,
+    accentColor: Colors.amberAccent);
+
+final ThemeData darkPink = new ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.pink,
+    accentColor: Colors.pinkAccent);
+
+
+
+const String DEFAULT_LIGHT_THEME = "default_light";
+const String DEFAULT_DARK_THEME = "default_dark";
 
 typedef void ThemeSelectionCallback(String chosenTheme);
 
@@ -1110,9 +1145,9 @@ class _ThemeSelectionState extends State<ThemeSelection> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: currentTheme == "light_theme"
-            ? _kGalleryLightTheme
-            : _kGalleryDarkTheme,
+        data: currentTheme == DEFAULT_LIGHT_THEME
+            ? defaultLightTheme
+            : defaultDarkTheme,
         child: AlertDialog(
           actions: <Widget>[
             FlatButton(
@@ -1134,15 +1169,15 @@ class _ThemeSelectionState extends State<ThemeSelection> {
               child: ListBody(
             children: <Widget>[
               RadioListTile(
-                value: "light_theme",
-                title: Text("Light Theme"),
+                value: DEFAULT_LIGHT_THEME,
+                title: Text("Default Light"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: "dark_theme",
-                title: Text("Dark Theme"),
+                value: DEFAULT_DARK_THEME,
+                title: Text("Default Dark"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
