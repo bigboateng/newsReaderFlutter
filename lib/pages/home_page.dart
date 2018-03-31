@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   String appBarTitle = US_TOP_NEWS;
   String newsSourceId = "";
-  String currentTheme = "light_theme";
+  static MyThemes currentSelectedTheme = MyThemes.defaultLight;
 
   DateTime timeOfAppPaused;
 
@@ -246,7 +246,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: useDarkTheme ? defaultDarkTheme : defaultLightTheme,
+        data: getCurrentTheme(),
         child: Scaffold(
             key: _scaffoldKey,
             appBar: buildAppBar(),
@@ -296,8 +296,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "technology";
             _selectedNewsSource = "technology";
             appBarTitle = "Tech";
-            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
-            //userDidSearch = true;
             lastUserAction = LastUserAction.categories;
             _refreshIndicatorKey.currentState.show();
           },
@@ -321,7 +319,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "science";
             _selectedNewsSource = "science";
             appBarTitle = "Science";
-            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
             lastUserAction = LastUserAction.categories;
             _refreshIndicatorKey.currentState.show();
           },
@@ -345,7 +342,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "sports";
             _selectedNewsSource = "sports";
             appBarTitle = "Sports";
-            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
             lastUserAction = LastUserAction.categories;
             _refreshIndicatorKey.currentState.show();
           },
@@ -369,7 +365,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "health";
             _selectedNewsSource = "health";
             appBarTitle = "Health";
-            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
             lastUserAction = LastUserAction.categories;
             _refreshIndicatorKey.currentState.show();
           },
@@ -393,7 +388,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             newsSourceId = "entertainment";
             _selectedNewsSource = "entertainment";
             appBarTitle = "Showbiz";
-            //loadNewsStoriesFromCategory().then((asd) => scrollToTop());
             lastUserAction = LastUserAction.categories;
             _refreshIndicatorKey.currentState.show();
           },
@@ -457,7 +451,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
               Expanded(
                   child: InkWell(
-                //padding: EdgeInsets.fromLTRB(8.0, 24.0, 16.0, 12.0),
                 child: Padding(
                     padding: EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 12.0),
                     child: Text(US_TOP_NEWS,
@@ -656,7 +649,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           IconButton(
                                               icon: Icon(
                                                 Icons.share,
-                                                color: Colors.blue,
+                                                color: getAccentColor(),
                                               ),
                                               padding: EdgeInsets.fromLTRB(
                                                   0.0, 0.0, 16.0, 0.0),
@@ -670,7 +663,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           Text("READ MORE",
                                               style: TextStyle(
                                                   fontSize: 16.0,
-                                                  color: Colors.blue,
+                                                  color: getAccentColor(),
                                                   fontWeight: FontWeight.bold))
                                         ],
                                       ))
@@ -683,9 +676,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   buildAppBar() {
     return AppBar(
-      title: Text(appBarTitle),
+      leading: IconButton(icon: Icon(Icons.menu, color: getAccentColor()), onPressed: () => _scaffoldKey.currentState.openDrawer()),
+      title: Text(appBarTitle, style: TextStyle(color: getAccentColor())),
       actions: <Widget>[
         PopupMenuButton<ListTile>(
+          icon: Icon(Icons.more_vert, color: getAccentColor()),
           elevation: 16.0,
           itemBuilder: (BuildContext context) => <PopupMenuItem<ListTile>>[
                 PopupMenuItem<ListTile>(
@@ -735,26 +730,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         context: context,
         barrierDismissible: true,
         child: ThemeSelection(
-            onThemeChosen: setTheme, currentTheme: this.currentTheme));
+            onThemeChosen: setTheme, currentTheme: currentSelectedTheme));
   }
 
-  void setTheme(String chosenTheme) {
-    currentTheme = chosenTheme;
+  void setTheme(MyThemes chosenTheme) {
+    setState(() => currentSelectedTheme = chosenTheme);
 
-    switch (chosenTheme) {
-      case 'light_theme':
-        setState(() {
-          useDarkTheme = false;
-        });
-        break;
-      case 'dark_theme':
-        setState(() {
-          useDarkTheme = true;
-        });
-        break;
-    }
-
-    prefs.setString("theme", chosenTheme);
+    prefs.setInt("theme", chosenTheme.index);
   }
 
   Future<Null> showSearchDialog() async {
@@ -808,7 +790,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       appBarTitle = "'" + keyword + "'";
       _selectedNewsSource = appBarTitle;
       newsSourceId = appBarTitle;
-      //loadNewsStoriesFromSearch(keyword);
       lastUserAction = LastUserAction.search;
       _refreshIndicatorKey.currentState.show();
       Navigator.of(context).pop();
@@ -883,10 +864,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   * HELPER METHODS BEGIN
   */
 
-  ThemeData getCurrentTheme() {
-    switch(currentTheme){
-      case:
+  static ThemeData getCurrentTheme() {
+    switch(currentSelectedTheme){
+      case MyThemes.defaultLight:
+        return defaultLightTheme;
+        break;
+      case MyThemes.defaultDark:
+        return defaultDarkTheme;
+        break;
+      case MyThemes.darkAmber:
+        return darkAmber;
+        break;
+      case MyThemes.darkCyan:
+        return darkCyan;
+        break;
+      case MyThemes.darkGreen:
+        return darkGreen;
+        break;
+      case MyThemes.darkLime:
+        return darkLime;
+        break;
+      case MyThemes.darkPink:
+        return darkPink;
+        break;
+      case MyThemes.darkTeal:
+        return darkTeal;
+        break;
     }
+
+    return defaultLightTheme;
   }
 
 
@@ -909,7 +915,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     sortNewsSourcesArray();
 
-    //loadNewsStoriesFromCustomSource();
     lastUserAction = LastUserAction.customNews;
     _refreshIndicatorKey.currentState.show();
   }
@@ -1021,12 +1026,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   getThemeSelectionFromDisk() {
-    String themeOnDisk = prefs.getString("theme");
-
-    if (themeOnDisk != null) currentTheme = themeOnDisk;
+    int themeOnDisk = prefs.getInt("theme");
 
     setState(() {
-      useDarkTheme = themeOnDisk == "dark_theme";
+      if (themeOnDisk != null) currentSelectedTheme = MyThemes.values[themeOnDisk];
     });
   }
 
@@ -1070,10 +1073,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Color getAccentColor() {
-    if (useDarkTheme)
-      return defaultDarkTheme.accentColor;
-    else
-      return defaultLightTheme.accentColor;
+    ThemeData theme = getCurrentTheme();
+    return theme.accentColor;
   }
 }
 
@@ -1122,21 +1123,11 @@ final ThemeData darkPink = new ThemeData(
     accentColor: Colors.pinkAccent);
 
 
-
-const String DEFAULT_LIGHT_THEME = "default_light";
-const String DEFAULT_DARK_THEME = "default_dark";
-const String DARK_TEAL_THEME = "dark_teal";
-const String DARK_CYAN_THEME = "dark_cyan";
-const String DARK_LIME_THEME = "dark_lime";
-const String DARK_GREEN_THEME = "dark_green";
-const String DARK_AMBER_THEME = "dark_amber";
-const String DARK_PINK_THEME = "dark_pink";
-
-typedef void ThemeSelectionCallback(String chosenTheme);
+typedef void ThemeSelectionCallback(MyThemes chosenTheme);
 
 class ThemeSelection extends StatefulWidget {
   final ThemeSelectionCallback onThemeChosen;
-  final String currentTheme;
+  final MyThemes currentTheme;
 
   ThemeSelection({this.onThemeChosen, this.currentTheme});
 
@@ -1146,8 +1137,8 @@ class ThemeSelection extends StatefulWidget {
 }
 
 class _ThemeSelectionState extends State<ThemeSelection> {
-  String themeGroupValue = "light_theme";
-  String currentTheme;
+  MyThemes currentTheme;
+  MyThemes themeGroupValue = MyThemes.defaultLight;
 
   _ThemeSelectionState({this.currentTheme});
 
@@ -1160,9 +1151,7 @@ class _ThemeSelectionState extends State<ThemeSelection> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: currentTheme == DEFAULT_LIGHT_THEME
-            ? defaultLightTheme
-            : defaultDarkTheme,
+        data: _HomePageState.getCurrentTheme(),
         child: AlertDialog(
           actions: <Widget>[
             FlatButton(
@@ -1184,56 +1173,56 @@ class _ThemeSelectionState extends State<ThemeSelection> {
               child: ListBody(
             children: <Widget>[
               RadioListTile(
-                value: DEFAULT_LIGHT_THEME,
+                value: MyThemes.defaultLight,
                 title: Text("Default Light"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DEFAULT_DARK_THEME,
+                value: MyThemes.defaultDark,
                 title: Text("Default Dark"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DARK_TEAL_THEME,
+                value: MyThemes.darkTeal,
                 title: Text("Dark Teal"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DARK_CYAN_THEME,
+                value: MyThemes.darkCyan,
                 title: Text("Dark Cyan"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DARK_LIME_THEME,
+                value: MyThemes.darkLime,
                 title: Text("Dark Lime"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DARK_GREEN_THEME,
+                value: MyThemes.darkGreen,
                 title: Text("Dark Green"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DARK_AMBER_THEME,
+                value: MyThemes.darkAmber,
                 title: Text("Dark Amber"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: DARK_PINK_THEME,
+                value: MyThemes.darkPink,
                 title: Text("Dark Pink"),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
