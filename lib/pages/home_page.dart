@@ -14,7 +14,16 @@ class HomePage extends StatefulWidget {
 
 enum LastUserAction { search, categories, customNews, news, usTopNews }
 
-enum MyThemes {defaultDark, defaultLight, darkTeal, darkCyan, darkLime, darkGreen, darkAmber, darkPink}
+enum MyThemes {
+  defaultDark,
+  defaultLight,
+  darkTeal,
+  darkCyan,
+  darkLime,
+  darkGreen,
+  darkAmber,
+  darkPink
+}
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const String FAVORITE_NEWS_SOURCES = "FAVORITE_NEWS_SOURCES";
@@ -33,7 +42,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   DateTime timeOfAppPaused;
 
   bool shouldShowHelpText = false;
-  bool useDarkTheme = false;
   bool noServerConnForNewsStories = false;
   bool noServerConnForNewsSources = false;
   bool isValidCustomNewsSource = true;
@@ -305,7 +313,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.phonelink_ring, size: iconSize, color: iconColor),
+                  Icon(Icons.smartphone, size: iconSize, color: iconColor),
                   Text(
                     "TECH",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -328,7 +336,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.extension, size: iconSize, color: iconColor),
+                  Icon(Icons.bubble_chart, size: iconSize, color: iconColor),
                   Text(
                     "SCIENCE",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -351,7 +359,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(),
-                  Icon(Icons.fitness_center, size: iconSize, color: iconColor),
+                  Icon(Icons.golf_course, size: iconSize, color: iconColor),
                   Text(
                     "SPORTS",
                     style: TextStyle(fontSize: textSize, color: textColor),
@@ -459,7 +467,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             color: _selectedNewsSource == US_TOP_NEWS
                                 ? getAccentColor()
                                 : null))),
-
                 onTap: () {
                   appBarTitle = US_TOP_NEWS;
                   lastUserAction = LastUserAction.usTopNews;
@@ -676,7 +683,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   buildAppBar() {
     return AppBar(
-      leading: IconButton(icon: Icon(Icons.menu, color: getAccentColor()), onPressed: () => _scaffoldKey.currentState.openDrawer()),
+      leading: IconButton(
+          icon: Icon(Icons.menu, color: getAccentColor()),
+          onPressed: () => _scaffoldKey.currentState.openDrawer()),
       title: Text(appBarTitle, style: TextStyle(color: getAccentColor())),
       actions: <Widget>[
         PopupMenuButton<ListTile>(
@@ -745,9 +754,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       context: context,
       barrierDismissible: true,
       child: Theme(
-          data: useDarkTheme ? defaultDarkTheme : defaultLightTheme,
+          data: getCurrentTheme(),
           child: AlertDialog(
-            title: Text('Search For News Articles...'),
+            title: Text('Search For News Articles...', style: TextStyle(color: getAccentColor())),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -803,9 +812,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       context: context,
       barrierDismissible: true,
       child: Theme(
-          data: useDarkTheme ? defaultDarkTheme : defaultLightTheme,
+          data: getCurrentTheme(),
           child: AlertDialog(
-            title: Text('Add News Provider'),
+            title: Text('Add News Provider', style: TextStyle(color: getAccentColor())),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -865,7 +874,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   */
 
   static ThemeData getCurrentTheme() {
-    switch(currentSelectedTheme){
+    switch (currentSelectedTheme) {
       case MyThemes.defaultLight:
         return defaultLightTheme;
         break;
@@ -894,7 +903,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return defaultLightTheme;
   }
-
 
   void addCustomNewsSource(String customNewsSource) {
     customNewsSources.add(customNewsSource);
@@ -1026,10 +1034,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   getThemeSelectionFromDisk() {
-    int themeOnDisk = prefs.getInt("theme");
-
     setState(() {
-      if (themeOnDisk != null) currentSelectedTheme = MyThemes.values[themeOnDisk];
+      currentSelectedTheme = MyThemes.values[prefs.getInt("theme") ?? 0];
     });
   }
 
@@ -1121,7 +1127,6 @@ final ThemeData darkPink = new ThemeData(
     brightness: Brightness.dark,
     primarySwatch: Colors.pink,
     accentColor: Colors.pinkAccent);
-
 
 typedef void ThemeSelectionCallback(MyThemes chosenTheme);
 
