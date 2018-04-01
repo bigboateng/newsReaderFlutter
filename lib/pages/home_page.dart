@@ -15,8 +15,8 @@ class HomePage extends StatefulWidget {
 enum LastUserAction { search, categories, customNews, news, usTopNews }
 
 enum MyThemes {
-  defaultDark,
   defaultLight,
+  defaultDark,
   darkTeal,
   darkCyan,
   darkLime,
@@ -507,33 +507,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               ),
               Expanded(
-                child: InkWell(
-                  child: Text(
-                    newsSource,
-                    style: TextStyle(
-                        fontSize: 20.0,
-                        color: _selectedNewsSource ==
-                                newsSourcesArray[index]['name']
-                            ? getAccentColor()
-                            : null),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    newsSourceId = newsSourcesArray[index]['id'];
-                    appBarTitle = newsSourcesArray[index]['name'];
-                    _selectedNewsSource = newsSourcesArray[index]['name'];
+                child: SizedBox(
+                    height: 50.0,
+                    child: InkWell(
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            newsSource,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: _selectedNewsSource ==
+                                        newsSourcesArray[index]['name']
+                                    ? getAccentColor()
+                                    : null),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )),
+                      onTap: () {
+                        Navigator.pop(context);
+                        newsSourceId = newsSourcesArray[index]['id'];
+                        appBarTitle = newsSourcesArray[index]['name'];
+                        _selectedNewsSource = newsSourcesArray[index]['name'];
 
-                    if (customNewsSources.contains(newsSource)) {
-                      lastUserAction = LastUserAction.customNews;
-                      _refreshIndicatorKey.currentState.show();
-                    } else {
-                      lastUserAction = LastUserAction.news;
-                      _refreshIndicatorKey.currentState.show();
-                    }
-                  },
-                ),
+                        if (customNewsSources.contains(newsSource)) {
+                          lastUserAction = LastUserAction.customNews;
+                          _refreshIndicatorKey.currentState.show();
+                        } else {
+                          lastUserAction = LastUserAction.news;
+                          _refreshIndicatorKey.currentState.show();
+                        }
+                      },
+                    )),
               ),
               Opacity(
                   opacity: customNewsSources.contains(newsSource) ? 1.0 : 0.0,
@@ -682,12 +686,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   buildAppBar() {
-    Color accentColor = currentSelectedTheme == MyThemes.defaultLight ? Colors.white : getAccentColor();
+    Color accentColor = currentSelectedTheme == MyThemes.defaultLight
+        ? Colors.white
+        : getAccentColor();
     return AppBar(
       leading: IconButton(
           icon: Icon(Icons.menu, color: accentColor),
           onPressed: () => _scaffoldKey.currentState.openDrawer()),
-      title: Text(appBarTitle, style: TextStyle(color:accentColor)),
+      title: Text(appBarTitle, style: TextStyle(color: accentColor)),
       actions: <Widget>[
         PopupMenuButton<ListTile>(
           icon: Icon(Icons.more_vert, color: accentColor),
@@ -696,7 +702,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 PopupMenuItem<ListTile>(
                     child: ListTile(
                   leading: Icon(Icons.palette, color: getAccentColor()),
-                  title: Text(THEMES, style: TextStyle(color: getAccentColor())),
+                  title:
+                      Text(THEMES, style: TextStyle(color: getAccentColor())),
                   onTap: () {
                     Navigator.of(context).pop();
                     showThemeDialog();
@@ -705,7 +712,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 PopupMenuItem<ListTile>(
                     child: ListTile(
                   leading: Icon(Icons.search, color: getAccentColor()),
-                  title: Text(SEARCH, style: TextStyle(color: getAccentColor())),
+                  title:
+                      Text(SEARCH, style: TextStyle(color: getAccentColor())),
                   onTap: () {
                     Navigator.of(context).pop();
                     showSearchDialog();
@@ -714,7 +722,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 PopupMenuItem<ListTile>(
                     child: ListTile(
                   leading: Icon(Icons.add, color: getAccentColor()),
-                  title: Text(PROVIDER, style: TextStyle(color: getAccentColor())),
+                  title:
+                      Text(PROVIDER, style: TextStyle(color: getAccentColor())),
                   onTap: () {
                     Navigator.of(context).pop();
                     showAddCustomNewsSourcesDialog();
@@ -748,7 +757,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: Theme(
           data: getCurrentTheme(),
           child: AlertDialog(
-            title: Text('Search For News Articles...', style: TextStyle(color: getAccentColor())),
+            title: Text('Search For News Articles...',
+                style: TextStyle(color: getAccentColor())),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -806,7 +816,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: Theme(
           data: getCurrentTheme(),
           child: AlertDialog(
-            title: Text('Add News Provider', style: TextStyle(color: getAccentColor())),
+            title: Text('Add News Provider',
+                style: TextStyle(color: getAccentColor())),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -1148,7 +1159,9 @@ class _ThemeSelectionState extends State<ThemeSelection> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: _HomePageState.getCurrentTheme() == defaultLightTheme ? darkCyan : _HomePageState.getCurrentTheme(),
+        data: _HomePageState.getCurrentTheme() == defaultLightTheme
+            ? darkCyan
+            : _HomePageState.getCurrentTheme(),
         child: AlertDialog(
           actions: <Widget>[
             FlatButton(
@@ -1166,62 +1179,74 @@ class _ThemeSelectionState extends State<ThemeSelection> {
             ),
           ],
           //title: Text("Choose Theme...", style: TextStyle(color: _HomePageState.getCurrentTheme() == defaultLightTheme ? darkCyan.accentColor : _HomePageState.getCurrentTheme().accentColor)),
-          title: Text("Choose Theme...", style: TextStyle(color: currentTheme == MyThemes.defaultLight ? darkCyan.accentColor : _HomePageState.getCurrentTheme().accentColor)),
+          title: Text("Choose Theme...",
+              style: TextStyle(
+                  color: currentTheme == MyThemes.defaultLight
+                      ? darkCyan.accentColor
+                      : _HomePageState.getCurrentTheme().accentColor)),
           content: SingleChildScrollView(
               child: ListBody(
             children: <Widget>[
               RadioListTile(
                 value: MyThemes.defaultLight,
-                title: Text("Default Light", style: TextStyle(color: Colors.white)),
+                title: Text("Default Light",
+                    style: TextStyle(color: Colors.white)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.defaultDark,
-                title: Text("Default Dark", style: TextStyle(color: defaultDarkTheme.accentColor)),
+                title: Text("Default Dark",
+                    style: TextStyle(color: defaultDarkTheme.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.darkTeal,
-                title: Text("Dark  / Teal", style: TextStyle(color: darkTeal.accentColor)),
+                title: Text("Dark  / Teal",
+                    style: TextStyle(color: darkTeal.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.darkCyan,
-                title: Text("Dark  / Cyan", style: TextStyle(color: darkCyan.accentColor)),
+                title: Text("Dark  / Cyan",
+                    style: TextStyle(color: darkCyan.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.darkLime,
-                title: Text("Dark  / Lime", style: TextStyle(color: darkLime.accentColor)),
+                title: Text("Dark  / Lime",
+                    style: TextStyle(color: darkLime.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.darkGreen,
-                title: Text("Dark  / Green", style: TextStyle(color: darkGreen.accentColor)),
+                title: Text("Dark  / Green",
+                    style: TextStyle(color: darkGreen.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.darkAmber,
-                title: Text("Dark  / Amber", style: TextStyle(color: darkAmber.accentColor)),
+                title: Text("Dark  / Amber",
+                    style: TextStyle(color: darkAmber.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
                 value: MyThemes.darkPink,
-                title: Text("Dark  / Pink", style: TextStyle(color: darkPink.accentColor)),
+                title: Text("Dark  / Pink",
+                    style: TextStyle(color: darkPink.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
