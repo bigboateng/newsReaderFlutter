@@ -15,13 +15,13 @@ class HomePage extends StatefulWidget {
 enum LastUserAction { search, categories, customNews, news, usTopNews }
 
 enum MyThemes {
-  defaultLight,
   defaultDark,
+  defaultLight,
   darkTeal,
   darkCyan,
-  darkLime,
+  darkPurple,
   darkGreen,
-  darkAmber,
+  darkYellow,
   darkPink
 }
 
@@ -884,8 +884,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       case MyThemes.defaultDark:
         return defaultDarkTheme;
         break;
-      case MyThemes.darkAmber:
-        return darkAmber;
+      case MyThemes.darkYellow:
+        return darkYellow;
         break;
       case MyThemes.darkCyan:
         return darkCyan;
@@ -893,8 +893,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       case MyThemes.darkGreen:
         return darkGreen;
         break;
-      case MyThemes.darkLime:
-        return darkLime;
+      case MyThemes.darkPurple:
+        return darkPurple;
         break;
       case MyThemes.darkPink:
         return darkPink;
@@ -1098,8 +1098,8 @@ final ThemeData defaultLightTheme = new ThemeData(
 
 final ThemeData defaultDarkTheme = new ThemeData(
     brightness: Brightness.dark,
-    primarySwatch: Colors.blue,
-    accentColor: Colors.blueAccent);
+    primarySwatch: Colors.lightBlue,
+    accentColor: Colors.lightBlueAccent);
 
 final ThemeData darkTeal = new ThemeData(
     brightness: Brightness.dark,
@@ -1111,20 +1111,20 @@ final ThemeData darkCyan = new ThemeData(
     primarySwatch: Colors.cyan,
     accentColor: Colors.cyanAccent);
 
-final ThemeData darkLime = new ThemeData(
+final ThemeData darkPurple = new ThemeData(
     brightness: Brightness.dark,
-    primarySwatch: Colors.lime,
-    accentColor: Colors.limeAccent);
+    primarySwatch: Colors.purple,
+    accentColor: Colors.purpleAccent);
 
 final ThemeData darkGreen = new ThemeData(
     brightness: Brightness.dark,
     primarySwatch: Colors.green,
     accentColor: Colors.greenAccent);
 
-final ThemeData darkAmber = new ThemeData(
+final ThemeData darkYellow = new ThemeData(
     brightness: Brightness.dark,
-    primarySwatch: Colors.amber,
-    accentColor: Colors.amberAccent);
+    primarySwatch: Colors.yellow,
+    accentColor: Colors.yellowAccent);
 
 final ThemeData darkPink = new ThemeData(
     brightness: Brightness.dark,
@@ -1220,9 +1220,9 @@ class _ThemeSelectionState extends State<ThemeSelection> {
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: MyThemes.darkLime,
-                title: Text("Dark  / Lime",
-                    style: TextStyle(color: darkLime.accentColor)),
+                value: MyThemes.darkPurple,
+                title: Text("Dark  / Purple",
+                    style: TextStyle(color: darkPurple.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
@@ -1236,9 +1236,9 @@ class _ThemeSelectionState extends State<ThemeSelection> {
                     setState(() => this.themeGroupValue = value),
               ),
               RadioListTile(
-                value: MyThemes.darkAmber,
-                title: Text("Dark  / Amber",
-                    style: TextStyle(color: darkAmber.accentColor)),
+                value: MyThemes.darkYellow,
+                title: Text("Dark  / Yellow",
+                    style: TextStyle(color: darkYellow.accentColor)),
                 groupValue: themeGroupValue,
                 onChanged: (value) =>
                     setState(() => this.themeGroupValue = value),
