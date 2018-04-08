@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     setState(() {
       if (response.statusCode == 200) {
-        Map<String, dynamic> newsStories = JSON.decode(response.body);
+        Map<String, dynamic> newsStories = json.decode(response.body);
 
         if (newsStories['totalResults'] == 0)
           isValidCustomNewsSource = false;
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     http.Response response = await http.get(dataUrl);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> newsStories = JSON.decode(response.body);
+      Map<String, dynamic> newsStories = json.decode(response.body);
 
       setState(() {
         noServerConnForNewsStories = false;
@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     http.Response response = await http.get(dataUrl);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> newsSources = JSON.decode(response.body);
+      Map<String, dynamic> newsSources = json.decode(response.body);
 
       setState(() {
         newsSourcesArray = newsSources['sources'];
@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     http.Response response = await http.get(dataUrl);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> newsStories = JSON.decode(response.body);
+      Map<String, dynamic> newsStories = json.decode(response.body);
 
       setState(() {
         noServerConnForNewsStories = false;
@@ -208,7 +208,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     http.Response response = await http.get(searchUrl);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> newsStories = JSON.decode(response.body);
+      Map<String, dynamic> newsStories = json.decode(response.body);
 
       setState(() {
         noServerConnForNewsStories = false;
@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     http.Response response = await http.get(dataUrl);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> newsStories = JSON.decode(response.body);
+      Map<String, dynamic> newsStories = json.decode(response.body);
 
       setState(() {
         noServerConnForNewsStories = false;
